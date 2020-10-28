@@ -39,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
                         .setTopColorRes(R.color.colorPrimary)
                         .setIcon(R.drawable.info)
                         //This will add Don't show again checkbox to the dialog. You can pass any ID as argument
-                        .setNotShowAgainOptionEnabled(0)
-                        .setNotShowAgainOptionChecked(true)
                         .setTitle("Battery is charged")
                         .setMessage("Charge battery up to chosen percent. Set your charging value and set your preferable notification method. Get info when battery is charged")
                         .show();
@@ -58,23 +56,31 @@ public class MainActivity extends AppCompatActivity {
         private void BattteryWidgetLogic() {
 
             final TextView chargingText = findViewById(R.id.chargingText);
-            BoxedVertical batterySeek = findViewById(R.id.seekbar_battery);
+            final BoxedVertical batterySeek = findViewById(R.id.seekbar_battery);
 
             batterySeek.setOnBoxedPointsChangeListener(new BoxedVertical.OnValuesChangeListener() {
                 @Override
                 public void onPointsChanged(BoxedVertical boxedPoints, final int value) {
                     System.out.println(value);
+                    if(value==80){
+                        Toast.makeText(getApplicationContext(),"This best charging value",Toast.LENGTH_LONG).show();
+                    }
+                    if(value<20){
+                        Toast.makeText(getApplicationContext(),"Notification are disabled for charging level under 20%",Toast.LENGTH_SHORT).show();
+                        //disabled buttona lub ikonka notyfikacji na pasku pawiadomien z przekresloną kreską zeby toast sie nie pokazywał caly czas
+                    }
                     chargingText.setText("Charge battery up to " + String.valueOf(value) + "%");
                 }
 
                 @Override
                 public void onStartTrackingTouch(BoxedVertical boxedPoints) {
-                    Toast.makeText(MainActivity.this, "onStartTrackingTouch", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MainActivity.this, "onStartTrackingTouch", Toast.LENGTH_SHORT).show();
+
                 }
 
                 @Override
                 public void onStopTrackingTouch(BoxedVertical boxedPoints) {
-                    Toast.makeText(MainActivity.this, "onStopTrackingTouch", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MainActivity.this, "onStopTrackingTouch", Toast.LENGTH_SHORT).show();
                 }
             });
         }

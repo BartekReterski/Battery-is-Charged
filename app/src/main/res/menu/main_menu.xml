@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="example.javatpoint.com.optionmenu.MainActivity">
 
+    <item  android:id="@+id/notifiOff"
+        android:title="NotificationOff"
+        app:showAsAction="always"
+        android:icon="@drawable/notification_off"/>
+
+
     <item  android:id="@+id/itemInfo"
         android:title="Info"
         app:showAsAction="always"
