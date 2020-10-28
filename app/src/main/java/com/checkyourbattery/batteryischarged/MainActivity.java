@@ -5,9 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 import com.yarolegovich.lovelydialog.LovelyInfoDialog;
 
 import abak.tr.com.boxedverticalseekbar.BoxedVertical;
@@ -40,10 +43,21 @@ public class MainActivity extends AppCompatActivity {
                         .setIcon(R.drawable.info)
                         //This will add Don't show again checkbox to the dialog. You can pass any ID as argument
                         .setTitle("Battery is charged")
-                        .setMessage("Charge battery up to chosen percent. Set your charging value and set your preferable notification method. Get info when battery is charged")
+                        .setMessage("Charge battery up to chosen percent. Set your charging value and preferable notification method. Get info when battery is charged")
                         .show();
 
                 return true;
+
+            case R.id.notifiOff:
+
+                new LovelyInfoDialog(this)
+                        .setTopColorRes(R.color.colorWarning)
+                        .setIcon(R.drawable.notification_off)
+                        //This will add Don't show again checkbox to the dialog. You can pass any ID as argument
+                        .setTitle("Notifications disabled")
+                        .setMessage("Notification are disabled for charging level under 20%")
+                        .show();
+                return  true;
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -67,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if(value<20){
                         Toast.makeText(getApplicationContext(),"Notification are disabled for charging level under 20%",Toast.LENGTH_SHORT).show();
-                        //disabled buttona lub ikonka notyfikacji na pasku pawiadomien z przekresloną kreską zeby toast sie nie pokazywał caly czas
+                        //disabled buttona i ikonka notyfikacji na pasku pawiadomien z przekresloną kreską zeby toast sie nie pokazywał caly czas
                     }
                     chargingText.setText("Charge battery up to " + String.valueOf(value) + "%");
                 }
@@ -81,6 +95,32 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onStopTrackingTouch(BoxedVertical boxedPoints) {
                     //Toast.makeText(MainActivity.this, "onStopTrackingTouch", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        public void NotificationLogic(){
+
+            Button buttonNotification= findViewById(R.id.buttonNotification);
+
+            buttonNotification.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                  /*  ArrayAdapter<DonationOption> adapter = new DonationAdapter(this, loadDonationOptions());
+                    new LovelyChoiceDialog(this)
+                            .setTopColorRes(R.color.darkGreen)
+                            .setTitle(R.string.donate_title)
+                            .setIcon(R.drawable.ic_local_atm_white_36dp)
+                            .setMessage(R.string.donate_message)
+                            .setItems(adapter, new LovelyChoiceDialog.OnItemSelectedListener<DonationOption>() {
+                                @Override
+                                public void onItemSelected(int position, DonationOption item) {
+                                    Toast.makeText(context, getString(R.string.you_donated, item.amount),Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .show();*/
+
                 }
             });
         }
