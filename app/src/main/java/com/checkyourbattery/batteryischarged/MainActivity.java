@@ -2,6 +2,7 @@ package com.checkyourbattery.batteryischarged;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +23,9 @@ import java.util.List;
 import abak.tr.com.boxedverticalseekbar.BoxedVertical;
 
 public class MainActivity extends AppCompatActivity {
+
+    SharedPreferences sharedPreferences;
+    int battery_value;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,18 +80,39 @@ public class MainActivity extends AppCompatActivity {
         final TextView chargingText = findViewById(R.id.chargingText);
         final BoxedVertical batterySeek = findViewById(R.id.seekbar_battery);
 
+        //odebranie danych tymczasowych na temat wybranej wartosci baterii i przypisanie wartości do widgetu baterii
+        SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
+        battery_value=sharedPreferences1.getInt("battery_value",0);
+        if(battery_value==0){
+            batterySeek.setValue(20);
+        }else{
+            batterySeek.setValue(battery_value);
+        }
+
+
         batterySeek.setOnBoxedPointsChangeListener(new BoxedVertical.OnValuesChangeListener() {
             @Override
             public void onPointsChanged(BoxedVertical boxedPoints, final int value) {
-                System.out.println(value);
-                if (value == 80) {
+
+                //wyslanie danych tymczasowych na temat wybranej wartosci baterii
+                sharedPreferences = getSharedPreferences("PREFS", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putInt("battery_value", value);
+                editor.apply();
+
+                //odebranie danych tymczasowych na temat wybranej wartosci baterii
+                SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
+                battery_value=sharedPreferences1.getInt("battery_value",0);
+
+                if (value >= 80) {
                     Toast.makeText(getApplicationContext(), "This best charging value", Toast.LENGTH_LONG).show();
                 }
                 if (value < 20) {
                     Toast.makeText(getApplicationContext(), "Notification are disabled for charging level under 20%", Toast.LENGTH_SHORT).show();
                     //disabled buttona i ikonka notyfikacji na pasku pawiadomien z przekresloną kreską zeby toast sie nie pokazywał caly czas
                 }
-                chargingText.setText("Charge battery up to " + String.valueOf(value) + "%");
+
+                chargingText.setText("Charge battery up to " + String.valueOf(battery_value) + "%");
             }
 
             @Override
@@ -117,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                         .setTopColorRes(R.color.chooseOption)
                         .setTitle("Choose notification option")
                         .setIcon(R.drawable.notification_on)
-                        .setMessage("Choose your preferable notification option and get info when battery is charged")
+                        .setMessage("Choose your preferable notification option and get info when battery is charged, based on your previous chosen battery value.")
                         .setItems(adapter, new LovelyChoiceDialog.OnItemSelectedListener<OptionModel>() {
                             @Override
                             public void onItemSelected(int position, OptionModel item) {
