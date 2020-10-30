@@ -6,8 +6,13 @@
     <item  android:id="@+id/notifiOff"
         android:title="NotificationOff"
         app:showAsAction="always"
+        android:visible="false"
         android:icon="@drawable/notification_off"/>
 
+    <item  android:id="@+id/deviceInfo"
+        android:title="DeviceInfo"
+        app:showAsAction="always"
+        android:icon="@drawable/device_info"/>
 
     <item  android:id="@+id/itemInfo"
         android:title="Info"

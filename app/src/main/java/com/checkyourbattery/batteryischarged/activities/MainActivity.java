@@ -1,7 +1,8 @@
-package com.checkyourbattery.batteryischarged;
+package com.checkyourbattery.batteryischarged.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,10 +11,11 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.checkyourbattery.batteryischarged.R;
 import com.checkyourbattery.batteryischarged.adapter.ChooseOptionAdapter;
 import com.checkyourbattery.batteryischarged.models.OptionModel;
+import com.github.florent37.viewtooltip.ViewTooltip;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 import com.yarolegovich.lovelydialog.LovelyInfoDialog;
 
@@ -24,8 +26,9 @@ import abak.tr.com.boxedverticalseekbar.BoxedVertical;
 
 public class MainActivity extends AppCompatActivity {
 
-    SharedPreferences sharedPreferences;
-    int battery_value;
+  private SharedPreferences sharedPreferences;
+  int choosen_battery_value;
+  private Menu menuList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +37,25 @@ public class MainActivity extends AppCompatActivity {
 
         BattteryWidgetLogic();
         NotificationLogic();
+
+        //przypisanie przejscia do aktywnosci dla tekstu
+        TextView getDeviceInfoText= findViewById(R.id.getDeviceInfoText);
+        getDeviceInfoText.getPaint().setUnderlineText(true);
+
+        getDeviceInfoText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent= new Intent(MainActivity.this,DeviceInfoActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_menu, menu);
+        this.menuList = menu;
         return true;
     }
 
@@ -68,12 +84,17 @@ public class MainActivity extends AppCompatActivity {
                         .show();
                 return true;
 
+            case R.id.deviceInfo:
+
+                Intent intent= new Intent(this, DeviceInfoActivity.class);
+                startActivity(intent);
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
 
     }
-
 
     private void BattteryWidgetLogic() {
 
@@ -82,11 +103,12 @@ public class MainActivity extends AppCompatActivity {
 
         //odebranie danych tymczasowych na temat wybranej wartosci baterii i przypisanie wartości do widgetu baterii
         SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
-        battery_value=sharedPreferences1.getInt("battery_value",0);
-        if(battery_value==0){
+        choosen_battery_value=sharedPreferences1.getInt("battery_value",0);
+
+        if(choosen_battery_value==0){
             batterySeek.setValue(20);
         }else{
-            batterySeek.setValue(battery_value);
+            batterySeek.setValue(choosen_battery_value);
         }
 
 
@@ -102,17 +124,21 @@ public class MainActivity extends AppCompatActivity {
 
                 //odebranie danych tymczasowych na temat wybranej wartosci baterii
                 SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
-                battery_value=sharedPreferences1.getInt("battery_value",0);
+                choosen_battery_value=sharedPreferences1.getInt("battery_value",0);
 
                 if (value >= 80) {
-                    Toast.makeText(getApplicationContext(), "This best charging value", Toast.LENGTH_LONG).show();
-                }
-                if (value < 20) {
-                    Toast.makeText(getApplicationContext(), "Notification are disabled for charging level under 20%", Toast.LENGTH_SHORT).show();
-                    //disabled buttona i ikonka notyfikacji na pasku pawiadomien z przekresloną kreską zeby toast sie nie pokazywał caly czas
+
+                    ViewTooltip
+                            .on(MainActivity.this,batterySeek)
+                            .autoHide(true, 4000)
+                            .corner(30)
+                            .position(ViewTooltip.Position.RIGHT)
+                            .text("Ending a charge at 80 percent is better for the battery than topping all the way up to 100 percent")
+                            .show();
+
                 }
 
-                chargingText.setText("Charge battery up to " + String.valueOf(battery_value) + "%");
+                chargingText.setText("Charge battery up to " + String.valueOf(choosen_battery_value) + "%");
             }
 
             @Override
@@ -136,28 +162,39 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                //odebranie danych tymczasowych na temat wybranej wartosci baterii i przypisanie wartości do widgetu baterii
+                SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
+                choosen_battery_value=sharedPreferences1.getInt("battery_value",0);
 
-                ArrayAdapter<OptionModel> adapter = new ChooseOptionAdapter(MainActivity.this, loadChooseOptions());
-                new LovelyChoiceDialog(MainActivity.this)
-                        .setTopColorRes(R.color.chooseOption)
-                        .setTitle("Choose notification option")
-                        .setIcon(R.drawable.notification_on)
-                        .setMessage("Choose your preferable notification option and get info when battery is charged, based on your previous chosen battery value.")
-                        .setItems(adapter, new LovelyChoiceDialog.OnItemSelectedListener<OptionModel>() {
-                            @Override
-                            public void onItemSelected(int position, OptionModel item) {
-                               // Toast.makeText(MainActivity.this, item.amount),Toast.LENGTH_SHORT).show();
-                             if(item.description.equals("System notification")){
+                //wyświetlenie informacji na temat tego, że nie można używać aplikacji gdy jest ustawione poniżej 20%
+                if(choosen_battery_value<20){
+                    menuList.performIdentifierAction(R.id.notifiOff,0);
+                }else{
 
-                                 //wykonaj metode
-                             }else{
+                    ArrayAdapter<OptionModel> adapter = new ChooseOptionAdapter(MainActivity.this, loadChooseOptions());
+                    new LovelyChoiceDialog(MainActivity.this)
+                            .setTopColorRes(R.color.chooseOption)
+                            .setTitle("Choose notification option")
+                            .setIcon(R.drawable.notification_on)
+                            .setMessage("Choose your preferable notification option and get info when battery is charged,based on your previous chosen value")
+                            .setItems(adapter, new LovelyChoiceDialog.OnItemSelectedListener<OptionModel>() {
+                                @Override
+                                public void onItemSelected(int position, OptionModel item) {
+                                    // Toast.makeText(MainActivity.this, item.amount),Toast.LENGTH_SHORT).show();
+                                    if(item.description.equals("System notification")){
 
-                                 //wykonaj metode pod email
-                             }
+                                        //wykonaj metode
+                                    }else{
 
-                            }
-                        })
-                        .show();
+                                        //wykonaj metode pod email
+                                    }
+
+                                }
+                            })
+                            .show();
+                }
+
+
 
             }
 

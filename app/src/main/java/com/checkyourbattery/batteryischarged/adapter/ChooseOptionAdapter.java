@@ -44,7 +44,7 @@ public class ChooseOptionAdapter extends ArrayAdapter<OptionModel> {
 
 
         public ViewHolder(View v) {
-            description = (TextView) v.findViewById(R.id.description);
+            description = v.findViewById(R.id.description);
 
         }
     }
