@@ -28,6 +28,7 @@ dependencies {
     implementation 'com.yarolegovich:lovely-dialog:1.1.1'
     implementation 'com.github.lvabarajithan:batterystatslibrary:1.0.0'
     implementation 'com.github.florent37:viewtooltip:1.2.2'
+    implementation 'gun0912.ted:tedpermission:2.2.3'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
