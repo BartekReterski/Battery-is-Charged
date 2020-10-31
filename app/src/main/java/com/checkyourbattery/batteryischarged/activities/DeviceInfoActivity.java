@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +19,7 @@ import com.checkyourbattery.batteryischarged.R;
 import com.github.abara.library.batterystats.BatteryStats;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
+import com.yarolegovich.lovelydialog.LovelyInfoDialog;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +35,28 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         RuntimePermissions();
         BatteryInfo();
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.details_device_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.batteryUsageInfo:
+                Intent intentBatteryUsage = new Intent(Intent.ACTION_POWER_USAGE_SUMMARY);
+                startActivity(intentBatteryUsage);
+
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
 
     }
 
@@ -78,6 +103,8 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
                     String deviceModel = Build.MANUFACTURER
                             + " " + Build.MODEL;
+                    String deviceBuildNumber=Build.DISPLAY;
+                    String deviceAndroidVersion=Build.VERSION.RELEASE;
                     int batteryLevel = batteryStats.getLevel();
                     int batteryScale = batteryStats.getScale();
                     String batteryTechnology = batteryStats.getBatteryTechnology();
@@ -94,6 +121,8 @@ public class DeviceInfoActivity extends AppCompatActivity {
                     int batteryVoltage = intentVoltage.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
 
                     TextView textdeviceModel = findViewById(R.id.device_model);
+                    TextView textdeviceBuildNumber=findViewById(R.id.device_build);
+                    TextView textdeviceAndroidVersion=findViewById(R.id.device_android_version);
                     TextView textbatteryLevel = findViewById(R.id.battery_level);
                     TextView textbatteryHealth = findViewById(R.id.battery_health);
                     TextView textbatteryVoltage = findViewById(R.id.battery_voltage);
@@ -105,6 +134,8 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
 
                     textdeviceModel.setText(deviceModel);
+                    textdeviceBuildNumber.setText(deviceBuildNumber);
+                    textdeviceAndroidVersion.setText(deviceAndroidVersion);
                     textbatteryLevel.setText(String.valueOf(batteryLevel + " %"));
                     textbatteryHealth.setText(batteryHealth);
                     textbatteryVoltage.setText(String.valueOf(batteryVoltage + " mV"));
@@ -112,7 +143,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
                     textbatteryTechnology.setText(batteryTechnology);
                     textbatteryScale.setText(String.valueOf(batteryScale));
                     textbatteryCapacity.setText(String.valueOf(capacity+ " mAh"));
-
 
                     if (isCharging) {
                         textbatteryIsChargin.setText("Yes");
