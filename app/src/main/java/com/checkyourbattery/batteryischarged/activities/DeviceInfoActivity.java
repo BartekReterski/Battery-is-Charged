@@ -7,9 +7,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.system.Os;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +18,7 @@ import com.github.abara.library.batterystats.BatteryStats;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,54 +57,77 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 .check();
     }
 
+    public long getBatteryCapacity(Context ctx) {
+        BatteryManager mBatteryManager = (BatteryManager) ctx.getSystemService(Context.BATTERY_SERVICE);
+        long chargeCounter = mBatteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
+        long capacity = mBatteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+
+        long value = (long) (((float) chargeCounter / (float) capacity) * 100f);
+        return value;
+
+    }
 
     private void BatteryInfo(){
 
-        BroadcastReceiver broadcastReceiver= new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                BatteryStats batteryStats = new BatteryStats(intent);
+        try {
 
-                String deviceModel = Build.MANUFACTURER
-                        + " " + Build.MODEL;
-                int batteryLevel=batteryStats.getLevel();
-                int batteryHealth=batteryStats.getHealth();
-                int batteryVoltage= (int) batteryStats.getVoltage();
-                int batteryScale= batteryStats.getScale();
-                String batteryTechnology= batteryStats.getBatteryTechnology();
-                int plugedState=batteryStats.getPluggedState();
-                boolean isCharging=batteryStats.isCharging();
+            BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    BatteryStats batteryStats = new BatteryStats(intent);
 
-                double batteryTemperatureFahrenheit=batteryStats.getTemperature(true);
-                double celsius =(( 5 *(batteryTemperatureFahrenheit - 32.0)) / 9.0);
+                    String deviceModel = Build.MANUFACTURER
+                            + " " + Build.MODEL;
+                    int batteryLevel = batteryStats.getLevel();
+                    int batteryScale = batteryStats.getScale();
+                    String batteryTechnology = batteryStats.getBatteryTechnology();
+                    String batteryHealth = batteryStats.getHealthText();
+                    int plugedState = batteryStats.getPluggedState();
+                    boolean isCharging = batteryStats.isCharging();
+                    double batteryTemperatureFahrenheit = batteryStats.getTemperature(true);
+                    double celsius = ((5 * (batteryTemperatureFahrenheit - 32.0)) / 9.0);
+                    long capacity = getBatteryCapacity(context);
+
+                    //zadeklarowanie osobnego receiver do samego voltage
+                    Intent intentVoltage = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+                    assert intentVoltage != null;
+                    int batteryVoltage = intentVoltage.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
+
+                    TextView textdeviceModel = findViewById(R.id.device_model);
+                    TextView textbatteryLevel = findViewById(R.id.battery_level);
+                    TextView textbatteryHealth = findViewById(R.id.battery_health);
+                    TextView textbatteryVoltage = findViewById(R.id.battery_voltage);
+                    TextView textbatteryTemperature = findViewById(R.id.battery_temperature);
+                    TextView textbatteryTechnology = findViewById(R.id.battery_technology);
+                    TextView textbatteryScale = findViewById(R.id.battery_scale);
+                    TextView textbatteryIsChargin = findViewById(R.id.battery_ischarging);
+                    TextView textbatteryCapacity=findViewById(R.id.battery_capacity);
 
 
-                TextView textdeviceModel=findViewById(R.id.device_model);
-                TextView textbatteryLevel=findViewById(R.id.battery_level);
+                    textdeviceModel.setText(deviceModel);
+                    textbatteryLevel.setText(String.valueOf(batteryLevel + " %"));
+                    textbatteryHealth.setText(batteryHealth);
+                    textbatteryVoltage.setText(String.valueOf(batteryVoltage + " mV"));
+                    textbatteryTemperature.setText(String.valueOf(batteryTemperatureFahrenheit + " °F"));
+                    textbatteryTechnology.setText(batteryTechnology);
+                    textbatteryScale.setText(String.valueOf(batteryScale));
+                    textbatteryCapacity.setText(String.valueOf(capacity+ " mAh"));
 
-                TextView textbatteryVoltage=findViewById(R.id.battery_voltage);
-                TextView textbatteryTemperature=findViewById(R.id.battery_temperature);
-                TextView textbatteryTechnology=findViewById(R.id.battery_technology);
-                TextView textbatteryScale=findViewById(R.id.battery_scale);
-                TextView textbatteryIsChargin=findViewById(R.id.battery_ischarging);
 
-                textdeviceModel.setText(deviceModel);
-                textbatteryLevel.setText(String.valueOf(batteryLevel +"%"));
-                textbatteryVoltage.setText(String.valueOf(batteryVoltage));
-                textbatteryTemperature.setText(String.valueOf(batteryTemperatureFahrenheit +"°F"));
-                textbatteryTechnology.setText(batteryTechnology);
-                textbatteryScale.setText(String.valueOf(batteryScale));
-                if(isCharging){
-                    textbatteryIsChargin.setText("Yes");
-                }else{
-                    textbatteryIsChargin.setText("No");
+                    if (isCharging) {
+                        textbatteryIsChargin.setText("Yes");
+
+                    } else {
+                        textbatteryIsChargin.setText("No");
+                    }
+
                 }
+            };
 
+            registerReceiver(broadcastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        }catch (Exception ex){
 
-            }
-        };
-
-        registerReceiver(broadcastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-
+            System.out.println(ex.getMessage()+ Arrays.toString(ex.getStackTrace()));
+        }
     }
 }

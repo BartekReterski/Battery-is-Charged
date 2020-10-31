@@ -122,21 +122,10 @@ public class MainActivity extends AppCompatActivity {
                 editor.putInt("battery_value", value);
                 editor.apply();
 
+
                 //odebranie danych tymczasowych na temat wybranej wartosci baterii
                 SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
                 choosen_battery_value=sharedPreferences1.getInt("battery_value",0);
-
-                if (value >= 80) {
-
-                    ViewTooltip
-                            .on(MainActivity.this,batterySeek)
-                            .autoHide(true, 4000)
-                            .corner(30)
-                            .position(ViewTooltip.Position.RIGHT)
-                            .text("Ending a charge at 80 percent is better for the battery than topping all the way up to 100 percent")
-                            .show();
-
-                }
 
                 chargingText.setText("Charge battery up to " + String.valueOf(choosen_battery_value) + "%");
             }
@@ -150,6 +139,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(BoxedVertical boxedPoints) {
                 //Toast.makeText(MainActivity.this, "onStopTrackingTouch", Toast.LENGTH_SHORT).show();
+
+                //odebranie danych tymczasowych na temat wybranej wartosci baterii
+                SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
+                choosen_battery_value=sharedPreferences1.getInt("battery_value",0);
+
+                if (choosen_battery_value >= 80) {
+
+                    ViewTooltip
+                            .on(MainActivity.this,batterySeek)
+                            .autoHide(true, 3500)
+                            .corner(30)
+                            .position(ViewTooltip.Position.RIGHT)
+                            .text("To increase battery lifespan charge it is recommended to charge it up to the 80%")
+                            .show();
+                }
             }
         });
     }
@@ -188,18 +192,15 @@ public class MainActivity extends AppCompatActivity {
 
                                         //wykonaj metode pod email
                                     }
-
                                 }
                             })
                             .show();
                 }
 
-
             }
 
         });
     }
-
     private List<OptionModel> loadChooseOptions() {
         List<OptionModel> result = new ArrayList<>();
         String[] raw = getResources().getStringArray(R.array.options);
