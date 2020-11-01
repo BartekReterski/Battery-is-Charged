@@ -11,7 +11,9 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.checkyourbattery.batteryischarged.BuildConfig;
 import com.checkyourbattery.batteryischarged.R;
 import com.checkyourbattery.batteryischarged.adapter.ChooseOptionAdapter;
 import com.checkyourbattery.batteryischarged.models.OptionModel;
@@ -65,11 +67,13 @@ public class MainActivity extends AppCompatActivity {
         switch (id) {
             case R.id.itemInfo:
 
+                String versionName = BuildConfig.VERSION_NAME;
                 new LovelyInfoDialog(this)
                         .setTopColorRes(R.color.colorPrimary)
                         .setIcon(R.drawable.info)
                         .setTitle("Battery is charged")
-                        .setMessage("Charge battery up to chosen percent. Set your charging value and preferable notification method. Get info when battery is charged")
+                        .setMessage("Charge battery up to chosen percent. Set your charging value and preferable notification method. Get info when battery is charged"
+                                + "\n"  + "\n" +"Version: "+versionName)
                         .show();
 
                 return true;
@@ -180,13 +184,14 @@ public class MainActivity extends AppCompatActivity {
                             .setTopColorRes(R.color.chooseOption)
                             .setTitle("Choose notification option")
                             .setIcon(R.drawable.notification_on)
-                            .setMessage("Choose your preferable notification option and get info when battery is charged,based on your previous chosen value")
+                            .setMessage("Choose your preferable notification option and get info when battery is charged, based on your previous chosen value")
                             .setItems(adapter, new LovelyChoiceDialog.OnItemSelectedListener<OptionModel>() {
                                 @Override
                                 public void onItemSelected(int position, OptionModel item) {
                                     // Toast.makeText(MainActivity.this, item.amount),Toast.LENGTH_SHORT).show();
                                     if(item.description.equals("System notification")){
 
+                                        Toast.makeText(MainActivity.this,"Opcja nr 1",Toast.LENGTH_SHORT).show();
                                         //wykonaj metode
                                     }else{
 

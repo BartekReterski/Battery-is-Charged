@@ -1,7 +1,6 @@
 package com.checkyourbattery.batteryischarged.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.checkyourbattery.batteryischarged.R;
 import com.github.abara.library.batterystats.BatteryStats;
 import com.gun0912.tedpermission.PermissionListener;

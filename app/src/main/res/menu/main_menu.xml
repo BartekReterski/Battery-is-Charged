@@ -5,18 +5,26 @@
 
     <item  android:id="@+id/notifiOff"
         android:title="NotificationOff"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom|withText"
         android:visible="false"
         android:icon="@drawable/notification_off"/>
 
     <item  android:id="@+id/deviceInfo"
         android:title="DeviceInfo"
-        app:showAsAction="always"
-        android:icon="@drawable/device_info"/>
+        android:icon="@drawable/device_info"
+        app:showAsAction="ifRoom|withText"/>
 
     <item  android:id="@+id/itemInfo"
-        android:title="Info"
-        app:showAsAction="always"
-        android:icon="@drawable/info"/>
+        android:title="About"
+        app:showAsAction="never"
+        android:icon="@drawable/info"
+        />
+
+    <item  android:id="@+id/itemSettings"
+        android:title="Notify when discharging also"
+        app:showAsAction="never"
+        android:checkable="true"
+        android:icon="@drawable/info"
+        />
 
 </menu>
