@@ -2,6 +2,6 @@
 <resources>
     <string-array name="options">
         <item>System notification</item>
-        <item>Send email</item>
+        <item>Send e-mail</item>
     </string-array>
 </resources>
