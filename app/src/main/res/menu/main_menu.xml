@@ -3,13 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="example.javatpoint.com.optionmenu.MainActivity">
 
-    <item  android:id="@+id/notifiOff"
+    <item  android:id="@+id/itemNotifiOff"
         android:title="NotificationOff"
         app:showAsAction="ifRoom|withText"
         android:visible="false"
         android:icon="@drawable/notification_off"/>
 
-    <item  android:id="@+id/deviceInfo"
+    <item  android:id="@+id/itemDeviceInfo"
         android:title=""
         android:icon="@drawable/device_info"
         app:showAsAction="ifRoom|withText"/>
@@ -20,11 +20,25 @@
         android:icon="@drawable/info"
         />
 
+    <item
+        android:id="@+id/itemSettings"
+        android:title="Settings"
+        app:showAsAction="never">
+        <menu>
+            <item android:id="@+id/itemNotDischOff"
+                android:title="Notifications when discharging"
+                android:checkable="true"
 
-        <item android:id="@+id/itemSettings"
-            android:title="Notifications when discharging"
-            android:checkable="true"
-            app:showAsAction="never"
-            />
+                />
+
+            <item android:id="@+id/itemNotPluged"
+                android:title="Notification when charger plugged"
+                android:checkable="true"
+
+                />
+        </menu>
+    </item>
+
+
 
 </menu>

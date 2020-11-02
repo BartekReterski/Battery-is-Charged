@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         check_box_value=sharedPreferences2.getBoolean("check",false);
 
         Toast.makeText(this,String.valueOf(check_box_value),Toast.LENGTH_LONG).show();
-        menu.findItem(R.id.itemSettings).setChecked(check_box_value);
+        menu.findItem(R.id.itemNotDischOff).setChecked(check_box_value);
 
         return true;
     }
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
                 return true;
 
-            case R.id.notifiOff:
+            case R.id.itemNotifiOff:
 
                 new LovelyInfoDialog(this)
                         .setTopColorRes(R.color.colorWarning)
@@ -102,13 +102,13 @@ public class MainActivity extends AppCompatActivity {
                         .show();
                 return true;
 
-            case R.id.deviceInfo:
+            case R.id.itemDeviceInfo:
 
                 Intent intent= new Intent(this, DeviceInfoActivity.class);
                 startActivity(intent);
                 return true;
 
-            case R.id.itemSettings:
+            case R.id.itemNotDischOff:
                 //ustawienie checkboxa z notyfikacjami
 
                 //wyslanie danych tymczasowych na temat checkboxa
@@ -128,6 +128,10 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 return true;
+
+            case R.id.itemNotPluged:
+
+                return  true;
 
             default:
 
@@ -205,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //wyświetlenie informacji na temat tego, że nie można używać aplikacji gdy jest ustawione poniżej 20%
                 if(choosen_battery_value<20){
-                    menuList.performIdentifierAction(R.id.notifiOff,0);
+                    menuList.performIdentifierAction(R.id.itemNotifiOff,0);
                 }else{
 
                     ArrayAdapter<OptionModel> adapter = new ChooseOptionAdapter(MainActivity.this, loadChooseOptions());
