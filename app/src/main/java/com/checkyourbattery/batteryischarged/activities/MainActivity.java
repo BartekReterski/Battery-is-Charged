@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
                 choosen_battery_value=sharedPreferences1.getInt("battery_value",0);
 
                 //wyświetlenie informacji na temat tego, że nie można używać aplikacji gdy jest ustawione poniżej 20%
-                if(choosen_battery_value<15){
+                if(choosen_battery_value<20){
                     menuList.performIdentifierAction(R.id.notifiOff,0);
                 }else{
 

@@ -10,7 +10,7 @@
         android:icon="@drawable/notification_off"/>
 
     <item  android:id="@+id/deviceInfo"
-        android:title="DeviceInfo"
+        android:title=""
         android:icon="@drawable/device_info"
         app:showAsAction="ifRoom|withText"/>
 

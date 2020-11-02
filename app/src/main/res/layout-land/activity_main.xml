@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="false">
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/backgroundColor"
+    tools:context=".activities.MainActivity">
+
+    <abak.tr.com.boxedverticalseekbar.BoxedVertical
+        android:id="@+id/seekbar_battery"
+        android:layout_width="@dimen/_50sdp"
+        android:layout_height="@dimen/_180sdp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:padding="@dimen/_8sdp"
+        android:layout_weight="1"
+        app:backgroundColor="@color/color_background"
+        app:defaultImage="@drawable/battery_white"
+        app:defaultValue="20"
+        app:imageEnabled="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:libCornerRadius="40"
+        app:max="100"
+        app:maxImage="@drawable/battery_white"
+        app:minImage="@drawable/battery_white"
+        app:progressColor="@color/colorPrimary"
+        app:step="1"
+        app:textBottomPadding="20"
+        app:textColor="#FF0000"
+        app:textEnabled="true"
+        app:textSize="12sp"
+        app:touchDisabled="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/chargingText"
+        android:text="Set charged value"
+        android:textSize="@dimen/_16sdp"
+        android:layout_marginTop="@dimen/_15sdp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seekbar_battery">
+
+    </TextView>
+
+    <Button
+        android:id="@+id/buttonNotification"
+        android:layout_width="@dimen/_200sdp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/_25sdp"
+        android:background="@drawable/button_background"
+        android:text="Notification"
+        android:textColor="#f5f5f5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chargingText"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/getDeviceInfoText"
+        android:layout_marginTop="@dimen/_25sdp"
+        android:textStyle="bold"
+        android:textSize="@dimen/_13sdp"
+        android:text="Get info about device and battery"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonNotification">
+    </TextView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
