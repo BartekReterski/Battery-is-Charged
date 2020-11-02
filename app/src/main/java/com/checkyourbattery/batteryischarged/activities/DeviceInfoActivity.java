@@ -11,6 +11,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.checkyourbattery.batteryischarged.R;
@@ -19,12 +21,14 @@ import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 import com.yarolegovich.lovelydialog.LovelyInfoDialog;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public class DeviceInfoActivity extends AppCompatActivity {
 
+    private static DecimalFormat df = new DecimalFormat("#.##");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +103,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 public void onReceive(Context context, Intent intent) {
                     BatteryStats batteryStats = new BatteryStats(intent);
 
+                    //pobranie danych na temat baterii z bilbioteki i receivera wbudowanego w system android
                     String deviceModel = Build.MANUFACTURER
                             + " " + Build.MODEL;
                     String deviceBuildNumber=Build.DISPLAY;
@@ -109,14 +114,16 @@ public class DeviceInfoActivity extends AppCompatActivity {
                     String batteryHealth = batteryStats.getHealthText();
                     int plugedState = batteryStats.getPluggedState();
                     boolean isCharging = batteryStats.isCharging();
-                    double batteryTemperatureFahrenheit = batteryStats.getTemperature(true);
-                    double celsius = ((5 * (batteryTemperatureFahrenheit - 32.0)) / 9.0);
+                    final double batteryTemperatureFahrenheit = batteryStats.getTemperature(true);
+                    final double celsius = ((5 * (batteryTemperatureFahrenheit - 32.0)) / 9.0);
                     long capacity = getBatteryCapacity(context);
+                    double batteryCapacity=capacity/1000;
 
                     //zadeklarowanie osobnego receiver do samego voltage
                     Intent intentVoltage = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
                     assert intentVoltage != null;
-                    int batteryVoltage = intentVoltage.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
+                    int Voltage = intentVoltage.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
+                    double batteryVoltage=Voltage/1000;
 
                     TextView textdeviceModel = findViewById(R.id.device_model);
                     TextView textdeviceBuildNumber=findViewById(R.id.device_build);
@@ -124,23 +131,24 @@ public class DeviceInfoActivity extends AppCompatActivity {
                     TextView textbatteryLevel = findViewById(R.id.battery_level);
                     TextView textbatteryHealth = findViewById(R.id.battery_health);
                     TextView textbatteryVoltage = findViewById(R.id.battery_voltage);
-                    TextView textbatteryTemperature = findViewById(R.id.battery_temperature);
+                    final TextView textbatteryTemperature = findViewById(R.id.battery_temperature);
                     TextView textbatteryTechnology = findViewById(R.id.battery_technology);
                     TextView textbatteryScale = findViewById(R.id.battery_scale);
                     TextView textbatteryIsChargin = findViewById(R.id.battery_ischarging);
-                    TextView textbatteryCapacity=findViewById(R.id.battery_capacity);
+                    final TextView textbatteryCapacity=findViewById(R.id.battery_capacity);
 
 
+                    //zapisanie wartości do elementów interfejsu
                     textdeviceModel.setText(deviceModel);
                     textdeviceBuildNumber.setText(deviceBuildNumber);
                     textdeviceAndroidVersion.setText(deviceAndroidVersion);
                     textbatteryLevel.setText(String.valueOf(batteryLevel + " %"));
                     textbatteryHealth.setText(batteryHealth);
-                    textbatteryVoltage.setText(String.valueOf(batteryVoltage + " mV"));
-                    textbatteryTemperature.setText(String.valueOf(batteryTemperatureFahrenheit + " °F"));
+                    textbatteryVoltage.setText(String.valueOf(df.format(batteryVoltage) + " V"));
+                    textbatteryTemperature.setText(String.valueOf(df.format(celsius) + " °C"));
                     textbatteryTechnology.setText(batteryTechnology);
                     textbatteryScale.setText(String.valueOf(batteryScale));
-                    textbatteryCapacity.setText(String.valueOf(capacity+ " mAh"));
+                    textbatteryCapacity.setText(String.valueOf(batteryCapacity+ " mAh"));
 
                     if (isCharging) {
                         textbatteryIsChargin.setText("Yes");
@@ -148,6 +156,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                     } else {
                         textbatteryIsChargin.setText("No");
                     }
+
 
                 }
             };

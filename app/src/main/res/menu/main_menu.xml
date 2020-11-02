@@ -20,11 +20,11 @@
         android:icon="@drawable/info"
         />
 
-    <item  android:id="@+id/itemSettings"
-        android:title="Notify when discharging also"
-        app:showAsAction="never"
-        android:checkable="true"
-        android:icon="@drawable/info"
-        />
+
+        <item android:id="@+id/itemSettings"
+            android:title="Notifications when discharging"
+            android:checkable="true"
+            app:showAsAction="never"
+            />
 
 </menu>

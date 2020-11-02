@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,11 +26,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import abak.tr.com.boxedverticalseekbar.BoxedVertical;
+import es.dmoral.toasty.Toasty;
 
 public class MainActivity extends AppCompatActivity {
 
   private SharedPreferences sharedPreferences;
+  private SharedPreferences sharedPreferencesCheckbox;
+  private SharedPreferences.Editor editorCheck;
   int choosen_battery_value;
+  boolean check_box_value;
   private Menu menuList;
 
     @Override
@@ -58,12 +63,21 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         this.menuList = menu;
+
+        //odebranie danych tymczasowych na temat checkboxa
+        SharedPreferences sharedPreferences2 = getSharedPreferences("PREFS_2", MODE_PRIVATE);
+        check_box_value=sharedPreferences2.getBoolean("check",false);
+
+        Toast.makeText(this,String.valueOf(check_box_value),Toast.LENGTH_LONG).show();
+        menu.findItem(R.id.itemSettings).setChecked(check_box_value);
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+
         switch (id) {
             case R.id.itemInfo:
 
@@ -94,7 +108,30 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
 
+            case R.id.itemSettings:
+                //ustawienie checkboxa z notyfikacjami
+
+                //wyslanie danych tymczasowych na temat checkboxa
+                sharedPreferencesCheckbox = getSharedPreferences("PREFS_2", MODE_PRIVATE);
+                editorCheck = sharedPreferencesCheckbox.edit();
+
+
+                if (item.isChecked()) {
+
+                    item.setChecked(false);
+                    editorCheck.putBoolean("check", false);
+                    editorCheck.apply();
+                } else {
+                    item.setChecked(true);
+                    editorCheck.putBoolean("check", true);
+                    editorCheck.apply();
+                }
+
+                return true;
+
             default:
+
+
                 return super.onOptionsItemSelected(item);
         }
 
@@ -126,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
                 editor.putInt("battery_value", value);
                 editor.apply();
 
-
                 //odebranie danych tymczasowych na temat wybranej wartosci baterii
                 SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
                 choosen_battery_value=sharedPreferences1.getInt("battery_value",0);
@@ -136,18 +172,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onStartTrackingTouch(BoxedVertical boxedPoints) {
-                //Toast.makeText(MainActivity.this, "onStartTrackingTouch", Toast.LENGTH_SHORT).show();
 
             }
 
             @Override
             public void onStopTrackingTouch(BoxedVertical boxedPoints) {
-                //Toast.makeText(MainActivity.this, "onStopTrackingTouch", Toast.LENGTH_SHORT).show();
-
-                //odebranie danych tymczasowych na temat wybranej wartosci baterii
-                SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
-                choosen_battery_value=sharedPreferences1.getInt("battery_value",0);
-
                 if (choosen_battery_value >= 80) {
 
                     ViewTooltip
@@ -175,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
                 choosen_battery_value=sharedPreferences1.getInt("battery_value",0);
 
                 //wyświetlenie informacji na temat tego, że nie można używać aplikacji gdy jest ustawione poniżej 20%
-                if(choosen_battery_value<20){
+                if(choosen_battery_value<15){
                     menuList.performIdentifierAction(R.id.notifiOff,0);
                 }else{
 
@@ -191,11 +220,13 @@ public class MainActivity extends AppCompatActivity {
                                     // Toast.makeText(MainActivity.this, item.amount),Toast.LENGTH_SHORT).show();
                                     if(item.description.equals("System notification")){
 
-                                        Toast.makeText(MainActivity.this,"Opcja nr 1",Toast.LENGTH_SHORT).show();
+                                        Toasty.success(MainActivity.this,"Notification will be shown when battery achieved "+choosen_battery_value+" %",Toast.LENGTH_LONG).show();
                                         //wykonaj metode
                                     }else{
 
                                         //wykonaj metode pod email
+
+                                        Toasty.success(MainActivity.this,"E-mail will be sent when battery achieved "+choosen_battery_value+" %",Toast.LENGTH_LONG).show();
                                     }
                                 }
                             })
