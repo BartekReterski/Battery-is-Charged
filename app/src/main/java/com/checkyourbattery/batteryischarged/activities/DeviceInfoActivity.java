@@ -84,8 +84,9 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 .check();
     }
 
-    public long getBatteryCapacity(Context ctx) {
+    private long getBatteryCapacity(Context ctx) {
         BatteryManager mBatteryManager = (BatteryManager) ctx.getSystemService(Context.BATTERY_SERVICE);
+        assert mBatteryManager != null;
         long chargeCounter = mBatteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
         long capacity = mBatteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
 

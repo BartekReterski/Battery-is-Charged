@@ -2,9 +2,15 @@ package com.checkyourbattery.batteryischarged.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,12 +24,16 @@ import com.checkyourbattery.batteryischarged.BuildConfig;
 import com.checkyourbattery.batteryischarged.R;
 import com.checkyourbattery.batteryischarged.adapter.ChooseOptionAdapter;
 import com.checkyourbattery.batteryischarged.models.OptionModel;
+import com.checkyourbattery.batteryischarged.service.AlarmReceiver;
+import com.github.abara.library.batterystats.BatteryStats;
 import com.github.florent37.viewtooltip.ViewTooltip;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 import com.yarolegovich.lovelydialog.LovelyInfoDialog;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 import abak.tr.com.boxedverticalseekbar.BoxedVertical;
 import es.dmoral.toasty.Toasty;
@@ -31,11 +41,15 @@ import es.dmoral.toasty.Toasty;
 public class MainActivity extends AppCompatActivity {
 
   private SharedPreferences sharedPreferences;
-  private SharedPreferences sharedPreferencesCheckbox;
-  private SharedPreferences.Editor editorCheck;
+  private SharedPreferences sharedPreferencesCheckboxNotDisch;
+  private SharedPreferences sharedPreferencesCheckboxNotPluged;
   int choosen_battery_value;
-  boolean check_box_value;
+  boolean check_box_value_not_disch;
+  boolean check_box_value_not_pluged;
   private Menu menuList;
+
+  private int notificationId = 1;
+  private int notificationId2 = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,12 +78,16 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         this.menuList = menu;
 
-        //odebranie danych tymczasowych na temat checkboxa
+        //odebranie danych tymczasowych na temat checkboxów z menu
         SharedPreferences sharedPreferences2 = getSharedPreferences("PREFS_2", MODE_PRIVATE);
-        check_box_value=sharedPreferences2.getBoolean("check",false);
+        check_box_value_not_disch=sharedPreferences2.getBoolean("check_not_disch",false);
 
-        Toast.makeText(this,String.valueOf(check_box_value),Toast.LENGTH_LONG).show();
-        menu.findItem(R.id.itemNotDischOff).setChecked(check_box_value);
+        SharedPreferences sharedPreferences3 = getSharedPreferences("PREFS_3", MODE_PRIVATE);
+        check_box_value_not_pluged=sharedPreferences3.getBoolean("check_not_pluged",false);
+
+        //Toast.makeText(this,String.valueOf(check_box_value_not_disch),Toast.LENGTH_LONG).show();
+        menu.findItem(R.id.itemNotDischOff).setChecked(check_box_value_not_disch);
+        menu.findItem(R.id.itemNotPluged).setChecked(check_box_value_not_pluged);
 
         return true;
     }
@@ -112,24 +130,47 @@ public class MainActivity extends AppCompatActivity {
                 //ustawienie checkboxa z notyfikacjami
 
                 //wyslanie danych tymczasowych na temat checkboxa
-                sharedPreferencesCheckbox = getSharedPreferences("PREFS_2", MODE_PRIVATE);
-                editorCheck = sharedPreferencesCheckbox.edit();
+                sharedPreferencesCheckboxNotDisch = getSharedPreferences("PREFS_2", MODE_PRIVATE);
+                SharedPreferences.Editor editorCheck = sharedPreferencesCheckboxNotDisch.edit();
 
 
                 if (item.isChecked()) {
 
                     item.setChecked(false);
-                    editorCheck.putBoolean("check", false);
+                    editorCheck.putBoolean("check_not_disch", false);
                     editorCheck.apply();
                 } else {
                     item.setChecked(true);
-                    editorCheck.putBoolean("check", true);
+                    editorCheck.putBoolean("check_not_disch", true);
                     editorCheck.apply();
+
+                    DisChargingNoti();
                 }
 
                 return true;
 
             case R.id.itemNotPluged:
+
+                //ustawienie checkboxa z notyfikacjami
+
+                //wyslanie danych tymczasowych na temat checkboxa
+                sharedPreferencesCheckboxNotPluged = getSharedPreferences("PREFS_3", MODE_PRIVATE);
+                SharedPreferences.Editor editorCheck2 = sharedPreferencesCheckboxNotPluged.edit();
+
+
+                if (item.isChecked()) {
+
+                    item.setChecked(false);
+                    editorCheck2.putBoolean("check_not_pluged", false);
+                    editorCheck2.apply();
+                } else {
+                    item.setChecked(true);
+                    editorCheck2.putBoolean("check_not_pluged", true);
+                    editorCheck2.apply();
+
+
+
+                }
 
                 return  true;
 
@@ -241,6 +282,8 @@ public class MainActivity extends AppCompatActivity {
 
         });
     }
+
+
     private List<OptionModel> loadChooseOptions() {
         List<OptionModel> result = new ArrayList<>();
         String[] raw = getResources().getStringArray(R.array.options);
@@ -249,6 +292,42 @@ public class MainActivity extends AppCompatActivity {
             result.add(new OptionModel(info[0]));
         }
         return result;
+    }
+
+
+    public void DisChargingNoti(){
+
+        final Calendar c = Calendar.getInstance();
+        int mHour = c.get(Calendar.HOUR_OF_DAY);
+        int mMinute = c.get(Calendar.MINUTE);
+
+        // Intent
+        Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+        intent.putExtra("notificationId", notificationId);
+
+        // PendingIntent
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                MainActivity.this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT
+        );
+
+        // AlarmManager
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+
+
+        // ustawienie czasu alarmu
+        Calendar startTime = Calendar.getInstance();
+        startTime.set(Calendar.HOUR_OF_DAY, mHour);
+        startTime.set(Calendar.MINUTE, mMinute);
+        startTime.set(Calendar.SECOND, 0);
+        long alarmStartTime = startTime.getTimeInMillis();
+
+
+
+            // ustawienie alarmu
+            Objects.requireNonNull(alarmManager).set(AlarmManager.RTC_WAKEUP, alarmStartTime, pendingIntent);
+
+
+
     }
 }
 

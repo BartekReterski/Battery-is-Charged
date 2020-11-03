@@ -33,6 +33,7 @@
 
             <item android:id="@+id/itemNotPluged"
                 android:title="Notification when charger plugged"
+                android:visible="false"
                 android:checkable="true"
 
                 />
