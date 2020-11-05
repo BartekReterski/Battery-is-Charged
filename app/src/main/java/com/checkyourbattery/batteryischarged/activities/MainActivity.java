@@ -3,15 +3,17 @@ package com.checkyourbattery.batteryischarged.activities;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,19 +21,16 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.checkyourbattery.batteryischarged.BuildConfig;
 import com.checkyourbattery.batteryischarged.R;
 import com.checkyourbattery.batteryischarged.adapter.ChooseOptionAdapter;
 import com.checkyourbattery.batteryischarged.models.OptionModel;
-import com.checkyourbattery.batteryischarged.service.AlarmReceiver;
+import com.checkyourbattery.batteryischarged.service.AlertReceiver;
 import com.github.abara.library.batterystats.BatteryStats;
 import com.github.florent37.viewtooltip.ViewTooltip;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 import com.yarolegovich.lovelydialog.LovelyInfoDialog;
-
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,8 +47,11 @@ public class MainActivity extends AppCompatActivity {
   boolean check_box_value_not_pluged;
   private Menu menuList;
 
-  private int notificationId = 1;
-  private int notificationId2 = 1;
+  private int battery_level;
+  private boolean battery_is_charging;
+
+  private  int notificationId=1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
         BattteryWidgetLogic();
         NotificationLogic();
+     //   BatteryInfo();
 
         //przypisanie przejscia do aktywnosci dla tekstu
         TextView getDeviceInfoText= findViewById(R.id.getDeviceInfoText);
@@ -70,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
 
     }
 
@@ -144,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                     editorCheck.putBoolean("check_not_disch", true);
                     editorCheck.apply();
 
-                    DisChargingNoti();
+
                 }
 
                 return true;
@@ -232,6 +236,7 @@ public class MainActivity extends AppCompatActivity {
                             .text("To increase battery lifespan charge it is recommended to charge it up to the 80%")
                             .show();
                 }
+
             }
         });
     }
@@ -265,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
                                     // Toast.makeText(MainActivity.this, item.amount),Toast.LENGTH_SHORT).show();
                                     if(item.description.equals("System notification")){
 
+                                        createNotificationChannel();
                                         Toasty.success(MainActivity.this,"Notification will be shown when battery achieved "+choosen_battery_value+" %",Toast.LENGTH_LONG).show();
                                         //wykonaj metode
                                     }else{
@@ -294,40 +300,78 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
+    //przesłanie danych na temat baterii do receivera notyfikacji
+    private void BatteryInfo(){
 
-    public void DisChargingNoti(){
+        BroadcastReceiver broadcastReceiver= new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
 
-        final Calendar c = Calendar.getInstance();
-        int mHour = c.get(Calendar.HOUR_OF_DAY);
-        int mMinute = c.get(Calendar.MINUTE);
+                BatteryStats batteryStats= new BatteryStats(intent);
+                battery_level=batteryStats.getLevel();
+                battery_is_charging=batteryStats.isCharging();
 
-        // Intent
-        Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
-        intent.putExtra("notificationId", notificationId);
+                //wyslanie danych tymczasowych na temat baterii
+                SharedPreferences sharedPreferencesBattery = getSharedPreferences("PREFS_BATTERY", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferencesBattery.edit();
+                editor.putInt("battery_level", battery_level);
+                editor.putBoolean("battery_is_charging",battery_is_charging);
+                editor.putBoolean("battery_not_off_checkbox",check_box_value_not_disch);
+                editor.apply();
 
-        // PendingIntent
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                MainActivity.this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT
-        );
-
-        // AlarmManager
-        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
-
-
-        // ustawienie czasu alarmu
-        Calendar startTime = Calendar.getInstance();
-        startTime.set(Calendar.HOUR_OF_DAY, mHour);
-        startTime.set(Calendar.MINUTE, mMinute);
-        startTime.set(Calendar.SECOND, 0);
-        long alarmStartTime = startTime.getTimeInMillis();
-
-
-
-            // ustawienie alarmu
-            Objects.requireNonNull(alarmManager).set(AlarmManager.RTC_WAKEUP, alarmStartTime, pendingIntent);
-
-
-
+            }
+        };
+        registerReceiver(broadcastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
     }
-}
+
+
+
+    private void createNotificationChannel() {
+
+
+        try {
+            Intent intent = new Intent(this, AlertReceiver.class);
+            intent.putExtra("choosen_battery_value", choosen_battery_value);
+            intent.putExtra("notificationId", notificationId);
+            intent.setAction("BackgroundProcess");
+
+            //Ustawienia alertu
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            assert alarmManager != null;
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, 0, 10, pendingIntent);
+
+
+        }catch (Exception ex){
+
+            System.out.println(ex.getMessage());
+        }
+    }
+        //usuniecie alarmu z notyfikacja
+        private void DeleteNotification() {
+
+            try {
+                // Intent
+                Intent intent2 = new Intent(MainActivity.this, AlertReceiver.class);
+                intent2.putExtra("notificationId", notificationId);
+
+                // PendingIntent
+                PendingIntent pendingIntent2 = PendingIntent.getBroadcast(
+                        MainActivity.this, 0, intent2, PendingIntent.FLAG_CANCEL_CURRENT
+                );
+
+                // AlarmManager
+                AlarmManager alarmManagerCancel = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+                Objects.requireNonNull(alarmManagerCancel).cancel(pendingIntent2);
+            }catch (Exception ex){
+
+                System.out.println(ex.getMessage());
+            }
+        }
+        }
+
+
+
+
 
