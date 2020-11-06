@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".service.AlertReceiver"
+        <receiver android:name=".service.ChargingReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

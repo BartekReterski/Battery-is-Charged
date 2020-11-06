@@ -3,17 +3,11 @@ package com.checkyourbattery.batteryischarged.activities;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlarmManager;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,8 +19,7 @@ import com.checkyourbattery.batteryischarged.BuildConfig;
 import com.checkyourbattery.batteryischarged.R;
 import com.checkyourbattery.batteryischarged.adapter.ChooseOptionAdapter;
 import com.checkyourbattery.batteryischarged.models.OptionModel;
-import com.checkyourbattery.batteryischarged.service.AlertReceiver;
-import com.github.abara.library.batterystats.BatteryStats;
+import com.checkyourbattery.batteryischarged.service.ChargingReceiver;
 import com.github.florent37.viewtooltip.ViewTooltip;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 import com.yarolegovich.lovelydialog.LovelyInfoDialog;
@@ -47,10 +40,9 @@ public class MainActivity extends AppCompatActivity {
   boolean check_box_value_not_pluged;
   private Menu menuList;
 
-  private int battery_level;
-  private boolean battery_is_charging;
 
   private  int notificationId=1;
+  private  int notificationId2=1;
 
 
     @Override
@@ -60,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         BattteryWidgetLogic();
         NotificationLogic();
-     //   BatteryInfo();
+
 
         //przypisanie przejscia do aktywnosci dla tekstu
         TextView getDeviceInfoText= findViewById(R.id.getDeviceInfoText);
@@ -143,10 +135,12 @@ public class MainActivity extends AppCompatActivity {
                     item.setChecked(false);
                     editorCheck.putBoolean("check_not_disch", false);
                     editorCheck.apply();
+
                 } else {
                     item.setChecked(true);
                     editorCheck.putBoolean("check_not_disch", true);
                     editorCheck.apply();
+
 
 
                 }
@@ -300,60 +294,44 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    //przesłanie danych na temat baterii do receivera notyfikacji
-    private void BatteryInfo(){
-
-        BroadcastReceiver broadcastReceiver= new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                BatteryStats batteryStats= new BatteryStats(intent);
-                battery_level=batteryStats.getLevel();
-                battery_is_charging=batteryStats.isCharging();
-
-                //wyslanie danych tymczasowych na temat baterii
-                SharedPreferences sharedPreferencesBattery = getSharedPreferences("PREFS_BATTERY", MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferencesBattery.edit();
-                editor.putInt("battery_level", battery_level);
-                editor.putBoolean("battery_is_charging",battery_is_charging);
-                editor.putBoolean("battery_not_off_checkbox",check_box_value_not_disch);
-                editor.apply();
-
-            }
-        };
-        registerReceiver(broadcastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-    }
-
-
-
     private void createNotificationChannel() {
 
+        //odebranie danych tymczasowych na temat checkboxów z menu
+        SharedPreferences sharedPreferences2 = getSharedPreferences("PREFS_2", MODE_PRIVATE);
+        check_box_value_not_disch=sharedPreferences2.getBoolean("check_not_disch",false);
 
         try {
-            Intent intent = new Intent(this, AlertReceiver.class);
-            intent.putExtra("choosen_battery_value", choosen_battery_value);
-            intent.putExtra("notificationId", notificationId);
-            intent.setAction("BackgroundProcess");
 
-            //Ustawienia alertu
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            assert alarmManager != null;
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, 0, 10, pendingIntent);
 
+                    //alarm podczas ładowania
+                    Intent intent = new Intent(this, ChargingReceiver.class);
+                    intent.putExtra("choosen_battery_value", choosen_battery_value);
+                    intent.putExtra("notificationId", notificationId);
+                    intent.putExtra("notificationId2", notificationId2);
+                    intent.putExtra("check_box_on_dis",check_box_value_not_disch);
+                    intent.setAction("BackgroundProcess");
+
+                    //Ustawienia alertu
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                    AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                    assert alarmManager != null;
+                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, 0, 10, pendingIntent);
 
         }catch (Exception ex){
 
             System.out.println(ex.getMessage());
         }
     }
+
+
         //usuniecie alarmu z notyfikacja
         private void DeleteNotification() {
 
             try {
                 // Intent
-                Intent intent2 = new Intent(MainActivity.this, AlertReceiver.class);
+                Intent intent2 = new Intent(MainActivity.this, ChargingReceiver.class);
                 intent2.putExtra("notificationId", notificationId);
+                intent2.putExtra("notificationId2",notificationId2);
 
                 // PendingIntent
                 PendingIntent pendingIntent2 = PendingIntent.getBroadcast(
