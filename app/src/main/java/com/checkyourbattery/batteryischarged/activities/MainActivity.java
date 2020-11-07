@@ -33,17 +33,17 @@ import es.dmoral.toasty.Toasty;
 
 public class MainActivity extends AppCompatActivity {
 
-  private SharedPreferences sharedPreferences;
-  private SharedPreferences sharedPreferencesCheckboxNotDisch;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferencesCheckboxNotDisch;
     private SharedPreferences sharedPreferencesAlarmValue;
-  int choosen_battery_value;
-  boolean check_box_value_not_disch;
-  boolean alarmValue;
-  private Menu menuList;
+    int choosen_battery_value;
+    boolean check_box_value_not_disch;
+    boolean alarmValue;
+    private Menu menuList;
 
 
-  private  int notificationId=1;
-  private  int notificationId2=1;
+    private int notificationId = 1;
+    private int notificationId2 = 1;
 
 
     @Override
@@ -56,13 +56,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         //przypisanie przejscia do aktywnosci dla tekstu
-        TextView getDeviceInfoText= findViewById(R.id.getDeviceInfoText);
+        TextView getDeviceInfoText = findViewById(R.id.getDeviceInfoText);
         getDeviceInfoText.getPaint().setUnderlineText(true);
 
         getDeviceInfoText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent= new Intent(MainActivity.this,DeviceInfoActivity.class);
+                Intent intent = new Intent(MainActivity.this, DeviceInfoActivity.class);
                 startActivity(intent);
             }
         });
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
         //odebranie danych tymczasowych na temat checkboxów z menu
         SharedPreferences sharedPreferences2 = getSharedPreferences("PREFS_2", MODE_PRIVATE);
-        check_box_value_not_disch=sharedPreferences2.getBoolean("check_not_disch",false);
+        check_box_value_not_disch = sharedPreferences2.getBoolean("check_not_disch", false);
 
         //Toast.makeText(this,String.valueOf(check_box_value_not_disch),Toast.LENGTH_LONG).show();
         menu.findItem(R.id.itemNotDischOff).setChecked(check_box_value_not_disch);
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                         .setIcon(R.drawable.info)
                         .setTitle("Battery is charged")
                         .setMessage("Charge battery up to chosen percent. Set your charging value and preferable notification method. Get info when battery is charged"
-                                + "\n"  + "\n" +"Version: "+versionName)
+                                + "\n" + "\n" + "Version: " + versionName)
                         .show();
 
                 return true;
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.itemDeviceInfo:
 
-                Intent intent= new Intent(this, DeviceInfoActivity.class);
+                Intent intent = new Intent(this, DeviceInfoActivity.class);
                 startActivity(intent);
                 return true;
 
@@ -133,13 +133,15 @@ public class MainActivity extends AppCompatActivity {
                     item.setChecked(false);
                     editorCheck.putBoolean("check_not_disch", false);
                     editorCheck.apply();
+                    DeleteNotification();
+                    Toasty.info(MainActivity.this, "Notification removed", Toasty.LENGTH_LONG).show();
 
                 } else {
                     item.setChecked(true);
                     editorCheck.putBoolean("check_not_disch", true);
                     editorCheck.apply();
                     createNotificationChannel();
-                    Toasty.success(MainActivity.this,"Notification will be shown when battery achieved "+choosen_battery_value+" %",Toast.LENGTH_LONG).show();
+                    Toasty.success(MainActivity.this, "Notification will be shown when battery achieved " + choosen_battery_value + " %", Toast.LENGTH_LONG).show();
 
                 }
 
@@ -161,11 +163,11 @@ public class MainActivity extends AppCompatActivity {
 
         //odebranie danych tymczasowych na temat wybranej wartosci baterii i przypisanie wartości do widgetu baterii
         SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
-        choosen_battery_value=sharedPreferences1.getInt("battery_value",0);
+        choosen_battery_value = sharedPreferences1.getInt("battery_value", 0);
 
-        if(choosen_battery_value==0){
+        if (choosen_battery_value == 0) {
             batterySeek.setValue(20);
-        }else{
+        } else {
             batterySeek.setValue(choosen_battery_value);
         }
 
@@ -182,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //odebranie danych tymczasowych na temat wybranej wartosci baterii
                 SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
-                choosen_battery_value=sharedPreferences1.getInt("battery_value",0);
+                choosen_battery_value = sharedPreferences1.getInt("battery_value", 0);
 
                 chargingText.setText("Charge battery up to " + String.valueOf(choosen_battery_value) + "%");
             }
@@ -197,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
                 if (choosen_battery_value >= 80) {
 
                     ViewTooltip
-                            .on(MainActivity.this,batterySeek)
+                            .on(MainActivity.this, batterySeek)
                             .autoHide(true, 3500)
                             .corner(30)
                             .position(ViewTooltip.Position.RIGHT)
@@ -219,12 +221,12 @@ public class MainActivity extends AppCompatActivity {
 
                 //odebranie danych tymczasowych na temat wybranej wartosci baterii i przypisanie wartości do widgetu baterii
                 SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
-                choosen_battery_value=sharedPreferences1.getInt("battery_value",0);
+                choosen_battery_value = sharedPreferences1.getInt("battery_value", 0);
 
                 //wyświetlenie informacji na temat tego, że nie można używać aplikacji gdy jest ustawione poniżej 20%
-                if(choosen_battery_value<20){
-                    menuList.performIdentifierAction(R.id.itemNotifiOff,0);
-                }else{
+                if (choosen_battery_value < 20) {
+                    menuList.performIdentifierAction(R.id.itemNotifiOff, 0);
+                } else {
 
                     ArrayAdapter<OptionModel> adapter = new ChooseOptionAdapter(MainActivity.this, loadChooseOptions());
                     new LovelyChoiceDialog(MainActivity.this)
@@ -236,22 +238,22 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onItemSelected(int position, OptionModel item) {
                                     // Toast.makeText(MainActivity.this, item.amount),Toast.LENGTH_SHORT).show();
-                                    if(item.description.equals("System notification")){
+                                    if (item.description.equals("System notification")) {
 
 
                                         //odebranie danych tymczasowych na temat wybranej wartosci alarmu
                                         SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS_3", MODE_PRIVATE);
-                                        int choosen_alarm_value=sharedPreferences1.getInt("alarm_value",0);
+                                        int choosen_alarm_value = sharedPreferences1.getInt("alarm_value", 0);
 
 
                                         createNotificationChannel();
-                                        Toasty.success(MainActivity.this,"Notification will be shown when battery achieved "+choosen_battery_value+" %",Toast.LENGTH_LONG).show();
+                                        Toasty.success(MainActivity.this, "Notification will be shown when battery achieved " + choosen_battery_value + " %" + " You can close the app", Toast.LENGTH_LONG).show();
                                         //wykonaj metode
-                                    }else{
+                                    } else {
 
                                         //wykonaj metode pod email
 
-                                        Toasty.success(MainActivity.this,"E-mail will be sent when battery achieved "+choosen_battery_value+" %",Toast.LENGTH_LONG).show();
+                                        Toasty.success(MainActivity.this, "E-mail will be sent when battery achieved " + choosen_battery_value + " %", Toast.LENGTH_LONG).show();
                                     }
                                 }
                             })
@@ -278,63 +280,67 @@ public class MainActivity extends AppCompatActivity {
 
         //odebranie danych tymczasowych na temat checkboxów z menu
         SharedPreferences sharedPreferences2 = getSharedPreferences("PREFS_2", MODE_PRIVATE);
-        check_box_value_not_disch=sharedPreferences2.getBoolean("check_not_disch",false);
+        check_box_value_not_disch = sharedPreferences2.getBoolean("check_not_disch", false);
 
         try {
+            //alarm podczas ładowania
+            Intent intent = new Intent(this, ChargingReceiver.class);
+            intent.putExtra("choosen_battery_value", choosen_battery_value);
+            intent.putExtra("notificationId", notificationId);
+            intent.putExtra("notificationId2", notificationId2);
+            intent.putExtra("check_box_on_dis", check_box_value_not_disch);
+            intent.setAction("BackgroundProcess");
 
-                    //alarm podczas ładowania
-                    Intent intent = new Intent(this, ChargingReceiver.class);
-                    intent.putExtra("choosen_battery_value", choosen_battery_value);
-                    intent.putExtra("notificationId", notificationId);
-                    intent.putExtra("notificationId2", notificationId2);
-                    intent.putExtra("check_box_on_dis",check_box_value_not_disch);
-                    intent.setAction("BackgroundProcess");
+            //Ustawienia alertu
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            assert alarmManager != null;
 
-                    //Ustawienia alertu
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-                    AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                    assert alarmManager != null;
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, 0, 10, pendingIntent);
 
-                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, 0, 10, pendingIntent);
-
-                    //wyslanie danych tymczasowych na temat wartosci ustawionego alarmu
-                    sharedPreferencesAlarmValue = getSharedPreferences("PREFS_3", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putInt("alarm_value", choosen_battery_value);
-                    editor.apply();
+            //wyslanie danych tymczasowych na temat wartosci ustawionego alarmu
+            sharedPreferencesAlarmValue = getSharedPreferences("PREFS_3", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt("alarm_value", choosen_battery_value);
+            editor.apply();
 
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
 
             System.out.println(ex.getMessage());
         }
     }
 
+    private void DeleteNotification(){
 
-        //usuniecie alarmu z notyfikacja
-        private void DeleteNotification() {
 
-            try {
-                // Intent
-                Intent intent2 = new Intent(MainActivity.this, ChargingReceiver.class);
-                intent2.putExtra("notificationId", notificationId);
-                intent2.putExtra("notificationId2",notificationId2);
+        try {
+            //alarm podczas ładowania
+            Intent intent = new Intent(this, ChargingReceiver.class);
+            intent.putExtra("choosen_battery_value", choosen_battery_value);
+            intent.putExtra("notificationId", notificationId);
+            intent.putExtra("notificationId2", notificationId2);
+            intent.putExtra("check_box_on_dis", check_box_value_not_disch);
+            intent.setAction("BackgroundProcess");
 
-                // PendingIntent
-                PendingIntent pendingIntent2 = PendingIntent.getBroadcast(
-                        MainActivity.this, 0, intent2, PendingIntent.FLAG_CANCEL_CURRENT
-                );
+            //Ustawienia alertu
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            assert alarmManager != null;
 
-                // AlarmManager
-                AlarmManager alarmManagerCancel = (AlarmManager) getSystemService(ALARM_SERVICE);
+            alarmManager.cancel(pendingIntent);
 
-                Objects.requireNonNull(alarmManagerCancel).cancel(pendingIntent2);
-            }catch (Exception ex){
 
-                System.out.println(ex.getMessage());
-            }
+        } catch (Exception ex) {
+
+            System.out.println(ex.getMessage());
         }
-        }
+
+    }
+
+}
+
+
 
 
 
