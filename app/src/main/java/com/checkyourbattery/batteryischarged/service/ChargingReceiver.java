@@ -1,5 +1,6 @@
 package com.checkyourbattery.batteryischarged.service;
 
+import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,6 +14,8 @@ import androidx.core.app.NotificationCompat;
 import com.checkyourbattery.batteryischarged.R;
 import com.checkyourbattery.batteryischarged.activities.MainActivity;
 import java.util.Objects;
+
+import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.BATTERY_SERVICE;
 
 
@@ -47,6 +50,7 @@ private static final String CHANNEL_ID_2 = "CHANNEL_SAMPLE2";
         Intent mainIntent = new Intent(context, MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, mainIntent, 0);
 
+
         //sprawdzanie czy wartość  jest dodatnia i na tej podstawie wyświetlenie odpowiedniej notyfikacji
         if(batter_status>0) {
 
@@ -56,6 +60,7 @@ private static final String CHANNEL_ID_2 = "CHANNEL_SAMPLE2";
                 // inicjalizacja notificationManager
                 NotificationManager notificationManager =
                         (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
@@ -73,7 +78,8 @@ private static final String CHANNEL_ID_2 = "CHANNEL_SAMPLE2";
                         .setContentTitle("Battery info update")
                         .setContentText("Battery achieved chosen value " + battery_level + "%")
                         .setContentIntent(contentIntent)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setVibrate(new long[3000])
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setAutoCancel(true);
 
 
@@ -105,10 +111,11 @@ private static final String CHANNEL_ID_2 = "CHANNEL_SAMPLE2";
                 // przygotowanie powiadomienia(konfiguracja)
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID_2)
                         .setSmallIcon(R.drawable.notification_mini_icon)
-                        .setContentTitle("Battery info update_DISCHARGING")
+                        .setContentTitle("Battery info update")
                         .setContentText("Battery achieved chosen value " + battery_level + "%")
                         .setContentIntent(contentIntent)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setVibrate(new long[3000])
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setAutoCancel(true);
 
 

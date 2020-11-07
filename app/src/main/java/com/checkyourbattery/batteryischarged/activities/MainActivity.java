@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,10 +35,10 @@ public class MainActivity extends AppCompatActivity {
 
   private SharedPreferences sharedPreferences;
   private SharedPreferences sharedPreferencesCheckboxNotDisch;
-  private SharedPreferences sharedPreferencesCheckboxNotPluged;
+    private SharedPreferences sharedPreferencesAlarmValue;
   int choosen_battery_value;
   boolean check_box_value_not_disch;
-  boolean check_box_value_not_pluged;
+  boolean alarmValue;
   private Menu menuList;
 
 
@@ -78,12 +79,9 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences2 = getSharedPreferences("PREFS_2", MODE_PRIVATE);
         check_box_value_not_disch=sharedPreferences2.getBoolean("check_not_disch",false);
 
-        SharedPreferences sharedPreferences3 = getSharedPreferences("PREFS_3", MODE_PRIVATE);
-        check_box_value_not_pluged=sharedPreferences3.getBoolean("check_not_pluged",false);
-
         //Toast.makeText(this,String.valueOf(check_box_value_not_disch),Toast.LENGTH_LONG).show();
         menu.findItem(R.id.itemNotDischOff).setChecked(check_box_value_not_disch);
-        menu.findItem(R.id.itemNotPluged).setChecked(check_box_value_not_pluged);
+
 
         return true;
     }
@@ -140,37 +138,13 @@ public class MainActivity extends AppCompatActivity {
                     item.setChecked(true);
                     editorCheck.putBoolean("check_not_disch", true);
                     editorCheck.apply();
-
-
+                    createNotificationChannel();
+                    Toasty.success(MainActivity.this,"Notification will be shown when battery achieved "+choosen_battery_value+" %",Toast.LENGTH_LONG).show();
 
                 }
 
                 return true;
 
-            case R.id.itemNotPluged:
-
-                //ustawienie checkboxa z notyfikacjami
-
-                //wyslanie danych tymczasowych na temat checkboxa
-                sharedPreferencesCheckboxNotPluged = getSharedPreferences("PREFS_3", MODE_PRIVATE);
-                SharedPreferences.Editor editorCheck2 = sharedPreferencesCheckboxNotPluged.edit();
-
-
-                if (item.isChecked()) {
-
-                    item.setChecked(false);
-                    editorCheck2.putBoolean("check_not_pluged", false);
-                    editorCheck2.apply();
-                } else {
-                    item.setChecked(true);
-                    editorCheck2.putBoolean("check_not_pluged", true);
-                    editorCheck2.apply();
-
-
-
-                }
-
-                return  true;
 
             default:
 
@@ -264,6 +238,12 @@ public class MainActivity extends AppCompatActivity {
                                     // Toast.makeText(MainActivity.this, item.amount),Toast.LENGTH_SHORT).show();
                                     if(item.description.equals("System notification")){
 
+
+                                        //odebranie danych tymczasowych na temat wybranej wartosci alarmu
+                                        SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS_3", MODE_PRIVATE);
+                                        int choosen_alarm_value=sharedPreferences1.getInt("alarm_value",0);
+
+
                                         createNotificationChannel();
                                         Toasty.success(MainActivity.this,"Notification will be shown when battery achieved "+choosen_battery_value+" %",Toast.LENGTH_LONG).show();
                                         //wykonaj metode
@@ -302,7 +282,6 @@ public class MainActivity extends AppCompatActivity {
 
         try {
 
-
                     //alarm podczas ładowania
                     Intent intent = new Intent(this, ChargingReceiver.class);
                     intent.putExtra("choosen_battery_value", choosen_battery_value);
@@ -315,7 +294,15 @@ public class MainActivity extends AppCompatActivity {
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
                     AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
                     assert alarmManager != null;
+
                     alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, 0, 10, pendingIntent);
+
+                    //wyslanie danych tymczasowych na temat wartosci ustawionego alarmu
+                    sharedPreferencesAlarmValue = getSharedPreferences("PREFS_3", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putInt("alarm_value", choosen_battery_value);
+                    editor.apply();
+
 
         }catch (Exception ex){
 

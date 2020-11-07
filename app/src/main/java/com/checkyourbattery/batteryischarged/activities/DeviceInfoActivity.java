@@ -29,6 +29,8 @@ import java.util.Objects;
 public class DeviceInfoActivity extends AppCompatActivity {
 
     private static DecimalFormat df = new DecimalFormat("#.##");
+    private boolean change;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,6 +139,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                     TextView textbatteryScale = findViewById(R.id.battery_scale);
                     TextView textbatteryIsChargin = findViewById(R.id.battery_ischarging);
                     final TextView textbatteryCapacity=findViewById(R.id.battery_capacity);
+                    TextView textbatteryStatePluged=findViewById(R.id.battery_state_pluged);
 
 
                     //zapisanie wartości do elementów interfejsu
@@ -146,10 +149,10 @@ public class DeviceInfoActivity extends AppCompatActivity {
                     textbatteryLevel.setText(String.valueOf(batteryLevel + " %"));
                     textbatteryHealth.setText(batteryHealth);
                     textbatteryVoltage.setText(String.valueOf(df.format(batteryVoltage) + " V"));
-                    textbatteryTemperature.setText(String.valueOf(df.format(celsius) + " °C"));
                     textbatteryTechnology.setText(batteryTechnology);
                     textbatteryScale.setText(String.valueOf(batteryScale));
                     textbatteryCapacity.setText(String.valueOf(batteryCapacity+ " mAh"));
+                    textbatteryTemperature.setText(String.valueOf(df.format(celsius) + " °C"));
 
                     if (isCharging) {
                         textbatteryIsChargin.setText("Yes");
@@ -157,6 +160,50 @@ public class DeviceInfoActivity extends AppCompatActivity {
                     } else {
                         textbatteryIsChargin.setText("No");
                     }
+
+                    //zmiana jednostki temperatury podczas kliknięcia
+                    textbatteryTemperature.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            if(change){
+                                change=false;
+                                textbatteryTemperature.setText(String.valueOf(df.format(celsius) + " °C"));
+
+                            }else{
+                                change=true;
+                                textbatteryTemperature.setText(String.valueOf(df.format(batteryTemperatureFahrenheit) + " °F"));
+
+                            }
+
+                        }
+                    });
+
+                    //wykrycie sposobu podłączenia telefonu
+                    switch (plugedState){
+
+                        case 0:
+                            textbatteryStatePluged.setText(String.valueOf("AC Adapter"));
+
+                        break;
+
+                        case 1:
+                            textbatteryStatePluged.setText(String.valueOf("USB Cable"));
+
+                        break;
+
+                        case 2:
+                            textbatteryStatePluged.setText(String.valueOf("WIRELESS"));
+
+                        break;
+
+                        case 3:
+                            textbatteryStatePluged.setText(String.valueOf("UNKNOWN"));
+
+                        break;
+
+                    }
+
 
 
                 }
