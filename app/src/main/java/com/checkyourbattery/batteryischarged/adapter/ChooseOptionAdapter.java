@@ -33,6 +33,7 @@ public class ChooseOptionAdapter extends ArrayAdapter<OptionModel> {
         OptionModel option = getItem(position);
         if (option != null) {
             vh.description.setText(option.description);
+            vh.alarmDescription.setText(option.alarmDescription);
 
         }
 
@@ -41,10 +42,12 @@ public class ChooseOptionAdapter extends ArrayAdapter<OptionModel> {
 
     private static final class ViewHolder {
         TextView description;
+        TextView alarmDescription;
 
 
         public ViewHolder(View v) {
             description = v.findViewById(R.id.description);
+            alarmDescription=v.findViewById(R.id.alarm_description);
 
         }
     }

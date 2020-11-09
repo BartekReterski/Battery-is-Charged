@@ -284,11 +284,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     private List<OptionModel> loadChooseOptions() {
+
+        //odebranie danych tymczasowych na temat wykonanej logiki notyfikacji
+        SharedPreferences sharedPreferencesN = getSharedPreferences("PREFS_3", MODE_PRIVATE);
+        String index = sharedPreferencesN.getString("alarm_value", "");
+
         List<OptionModel> result = new ArrayList<>();
-        String[] raw = getResources().getStringArray(R.array.options);
+        String[] raw = new String[2];
+        raw[0]="System notification/ "+index;
+        raw[1]="Send e-mail/1$";
         for (String op : raw) {
-            String[] info = op.split("%");
-            result.add(new OptionModel(info[0]));
+            String[] info = op.split("/");
+            result.add(new OptionModel(info[0],info[1]));
         }
         return result;
     }
@@ -315,7 +322,14 @@ public class MainActivity extends AppCompatActivity {
 
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, 0, 10, pendingIntent);
 
-            Toasty.success(MainActivity.this, "Notification will be shown when battery achieved " + choosen_battery_value + " %" + " You can close the app", Toast.LENGTH_LONG).show();
+            Toasty.success(MainActivity.this, "Notification will be shown when battery achieved " + choosen_battery_value + " %", Toast.LENGTH_LONG).show();
+
+            //wyslanie danych tymczasowych na temat wykonanej logiki notyfikacji
+            SharedPreferences sharedPreferencesNotificatioData = getSharedPreferences("PREFS_3", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferencesNotificatioData.edit();
+            editor.putString("alarm_value", "Notification: " +choosen_battery_value +"%");
+            editor.apply();
+
 
 
         } catch (Exception ex) {
