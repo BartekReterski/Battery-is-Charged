@@ -9,8 +9,8 @@
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="@dimen/_60sdp"
-        android:layout_height="@dimen/_60sdp"
+        android:layout_width="@dimen/_70sdp"
+        android:layout_height="@dimen/_70sdp"
         android:layout_marginTop="@dimen/_130sdp"
         android:foregroundGravity="center"
         app:layout_constraintEnd_toEndOf="parent"
@@ -40,7 +40,7 @@
         android:gravity="center"
         android:text="Don't waste energy"
         android:textColor="@color/backgroundColor"
-        android:textSize="@dimen/_10sdp"
+        android:textSize="@dimen/_12sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4" />

@@ -22,6 +22,7 @@ import com.checkyourbattery.batteryischarged.R;
 import com.checkyourbattery.batteryischarged.adapter.ChooseOptionAdapter;
 import com.checkyourbattery.batteryischarged.models.OptionModel;
 import com.checkyourbattery.batteryischarged.service.ChargingReceiver;
+import com.creativityapps.gmailbackgroundlibrary.BackgroundMail;
 import com.github.florent37.viewtooltip.ViewTooltip;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 import com.yarolegovich.lovelydialog.LovelyInfoDialog;
@@ -141,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
                     editorCheck.putBoolean("check_not_disch", false);
                     editorCheck.apply();
                     DeleteNotification();
+                    Toasty.info(MainActivity.this, "Notification removed", Toasty.LENGTH_LONG).show();
 
 
                 } else {
@@ -261,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
 
                                             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
                                             alertDialogBuilder.setMessage("Notification is already set. Do you want to delete it and set new one?");
-                                                    alertDialogBuilder.setPositiveButton("Delete and set new one",
+                                                    alertDialogBuilder.setPositiveButton("Set notification",
                                                             new DialogInterface.OnClickListener() {
                                                                 @Override
                                                                 public void onClick(DialogInterface arg0, int arg1) {
@@ -276,6 +278,7 @@ public class MainActivity extends AppCompatActivity {
                                                         public void onClick(DialogInterface dialog, int which) {
 
                                                             DeleteNotification();
+                                                            Toasty.info(MainActivity.this, "Notification removed", Toasty.LENGTH_LONG).show();
                                                         }
                                                     });
 
@@ -289,9 +292,8 @@ public class MainActivity extends AppCompatActivity {
 
                                     } else {
 
-                                        //wykonaj metode pod email
+                                        creatNotificationEmail();
 
-                                        Toasty.success(MainActivity.this, "E-mail will be sent when battery achieved " + choosen_battery_value + " %", Toast.LENGTH_LONG).show();
                                     }
                                 }
                             })
@@ -376,13 +378,12 @@ public class MainActivity extends AppCompatActivity {
             assert alarmManager != null;
 
             alarmManager.cancel(pendingIntent);
-            Toasty.info(MainActivity.this, "Notification removed", Toasty.LENGTH_LONG).show();
 
-           /* //usuniecie danych tymczasowych na temat wykonanej logiki notyfikacji
+            //usuniecie danych tymczasowych na temat wykonanej logiki notyfikacji
             sharedPreferencesNotificatioData = getSharedPreferences("PREFS_3", MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferencesNotificatioData.edit();
             editor.remove("alarm_value");
-            editor.apply();*/
+            editor.apply();
 
 
 
@@ -394,6 +395,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void creatNotificationEmail(){
+        BackgroundMail.newBuilder(this)
+                .withUsername("spammejl94@gmail.com")
+                .withPassword("bobmarley20")
+                .withMailto("spammejl94@gmail.com")
+                .withType(BackgroundMail.TYPE_PLAIN)
+                .withSubject("SWIEZY MEJL")
+                .withBody("DUPA DUPA DUPA")
+                .withOnSuccessCallback(new BackgroundMail.OnSuccessCallback() {
+                    @Override
+                    public void onSuccess() {
+                        //do some magic
+                        Toasty.success(MainActivity.this, "E-mail will be sent when battery achieved " + choosen_battery_value + " %", Toast.LENGTH_LONG).show();
+                    }
+                })
+                .withOnFailCallback(new BackgroundMail.OnFailCallback() {
+                    @Override
+                    public void onFail() {
+                        Toasty.info(MainActivity.this,"Can't send email",Toast.LENGTH_LONG).show();
+                    }
+                })
+                .send();
 
     }
 

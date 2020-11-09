@@ -40,10 +40,9 @@ private static final String CHANNEL_ID_2 = "CHANNEL_SAMPLE2";
         BatteryManager bm = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
         assert bm != null;
         int battery_level = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+        int battery_status=bm.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING);
 
-        int batter_status=bm.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING);
-
-        Toast.makeText(context,battery_level + "  "+batter_status,Toast.LENGTH_LONG).show();
+       // Toast.makeText(context,battery_level + "  "+batter_status,Toast.LENGTH_LONG).show();
 
 
         // uruchomienie activity z powiadomienia
@@ -58,7 +57,7 @@ private static final String CHANNEL_ID_2 = "CHANNEL_SAMPLE2";
 
 
         //sprawdzanie czy wartość  jest dodatnia i na tej podstawie wyświetlenie odpowiedniej notyfikacji
-        if(batter_status>0) {
+        if(battery_status>0) {
 
             //powiadomienia dla ładowania baterii
             if (choosenBatteryValue == battery_level) {
@@ -95,8 +94,8 @@ private static final String CHANNEL_ID_2 = "CHANNEL_SAMPLE2";
             }
 
         }
-        //jesli wartości energi w telefonie są na minusie oraz wartość checkboxa jest na true to wykonuje tą drugą notyfikacje
-        if(batter_status<0 && checkboxNotDisch){
+        //jesli wartości energi w telefonie jest na minusie oraz wartość checkboxaDischarge jest na true to wykonuje tą drugą notyfikacje
+        if(battery_status<0 && checkboxNotDisch){
 
             //powiadomienie dla rozładowywania baterii
             if (choosenBatteryValue == battery_level) {
