@@ -1,14 +1,15 @@
 package com.checkyourbattery.batteryischarged.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.AlarmManager;
+import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,13 +36,10 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences sharedPreferencesCheckboxNotDisch;
-    private SharedPreferences sharedPreferencesAlarmValue;
+    private SharedPreferences sharedPreferencesNotificatioData;
     int choosen_battery_value;
     boolean check_box_value_not_disch;
-    boolean alarmValue;
     private Menu menuList;
-
-
     private int notificationId = 1;
     private int notificationId2 = 1;
 
@@ -67,9 +65,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //usuniecie notyfikacji z receivera
+        //usuniecie notyfikacji z receivera na samym powiadomieniu
         if (getIntent().hasExtra("deleteNotification")) {
             DeleteNotification();
+            NotificationManager notificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            Objects.requireNonNull(notificationManager).cancel(notificationId);
+            Objects.requireNonNull(notificationManager).cancel(notificationId2);
+
         }
 
     }
@@ -244,7 +247,6 @@ public class MainActivity extends AppCompatActivity {
                                     // Toast.makeText(MainActivity.this, item.amount),Toast.LENGTH_SHORT).show();
                                     if (item.description.equals("System notification")) {
 
-
                                         Intent intent = new Intent(MainActivity.this, ChargingReceiver.class);
                                         intent.putExtra("choosen_battery_value", choosen_battery_value);
                                         intent.putExtra("notificationId", notificationId);
@@ -256,16 +258,35 @@ public class MainActivity extends AppCompatActivity {
                                         PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, PendingIntent.FLAG_NO_CREATE);
 
                                         if (pendingIntent!=null){
-                                            Toast.makeText(MainActivity.this,"JEST alarm",Toast.LENGTH_LONG).show();
-                                            DeleteNotification();
-                                            createNotificationChannel();
+
+                                            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                                            alertDialogBuilder.setMessage("Notification is already set. Do you want to delete it and set new one?");
+                                                    alertDialogBuilder.setPositiveButton("Delete and set new one",
+                                                            new DialogInterface.OnClickListener() {
+                                                                @Override
+                                                                public void onClick(DialogInterface arg0, int arg1) {
+
+                                                                    DeleteNotification();
+                                                                    createNotificationChannel();
+                                                                }
+                                                            });
+
+                                                    alertDialogBuilder.setNegativeButton("Remove notification", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {
+
+                                                            DeleteNotification();
+                                                        }
+                                                    });
+
+                                            AlertDialog alertDialog = alertDialogBuilder.create();
+                                            alertDialog.show();
+
                                         }else{
 
                                             createNotificationChannel();
                                         }
 
-
-                                        //wykonaj metode
                                     } else {
 
                                         //wykonaj metode pod email
@@ -281,7 +302,6 @@ public class MainActivity extends AppCompatActivity {
 
         });
     }
-
 
     private List<OptionModel> loadChooseOptions() {
 
@@ -325,7 +345,7 @@ public class MainActivity extends AppCompatActivity {
             Toasty.success(MainActivity.this, "Notification will be shown when battery achieved " + choosen_battery_value + " %", Toast.LENGTH_LONG).show();
 
             //wyslanie danych tymczasowych na temat wykonanej logiki notyfikacji
-            SharedPreferences sharedPreferencesNotificatioData = getSharedPreferences("PREFS_3", MODE_PRIVATE);
+            sharedPreferencesNotificatioData = getSharedPreferences("PREFS_3", MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferencesNotificatioData.edit();
             editor.putString("alarm_value", "Notification: " +choosen_battery_value +"%");
             editor.apply();
@@ -358,6 +378,14 @@ public class MainActivity extends AppCompatActivity {
             alarmManager.cancel(pendingIntent);
             Toasty.info(MainActivity.this, "Notification removed", Toasty.LENGTH_LONG).show();
 
+           /* //usuniecie danych tymczasowych na temat wykonanej logiki notyfikacji
+            sharedPreferencesNotificatioData = getSharedPreferences("PREFS_3", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferencesNotificatioData.edit();
+            editor.remove("alarm_value");
+            editor.apply();*/
+
+
+
         } catch (Exception ex) {
 
             System.out.println(ex.getMessage());
@@ -365,12 +393,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void creatNotificationEmail(){
+
+    }
 
 }
-
-
-
-
 
 
 

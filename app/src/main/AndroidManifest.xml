@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.checkyourbattery.batteryischarged">
-<uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ikona_aplikacji"
@@ -9,10 +11,14 @@
         android:roundIcon="@mipmap/ikona_aplikacji"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.DeviceInfoActivity"
-            android:parentActivityName=".activities.MainActivity"></activity>
-        <activity android:name=".activities.MainActivity"
-            android:launchMode="singleTop">
+        <activity
+            android:name=".activities.DeviceInfoActivity"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity android:name=".activities.MainActivity"/>
+        <activity
+            android:name=".activities.SplashScreenActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,19 +26,17 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".service.ChargingReceiver"
+        <receiver
+            android:name=".service.ChargingReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
-                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
-                <action android:name="android.intent.action.BATTERY_CHANGED"/>
-                <action android:name="BackgroundProcess"/>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+                <action android:name="android.intent.action.BATTERY_CHANGED" />
+                <action android:name="BackgroundProcess" />
             </intent-filter>
         </receiver>
-
-
     </application>
-
 
 </manifest>

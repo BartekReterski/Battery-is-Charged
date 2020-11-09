@@ -13,6 +13,7 @@
         android:textSize="16sp"
         android:textColor="@color/primaryText"
         android:layout_height="wrap_content"
+        android:text="ABC"
         android:layout_marginLeft="@dimen/ld_side_margin"
         android:layout_marginRight="@dimen/ld_side_margin" />
 
@@ -23,7 +24,9 @@
 
     <TextView
         android:id="@+id/alarm_description"
-        android:textColor="@color/warningColor"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold"
+        android:text="ABC"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/ld_side_margin"
