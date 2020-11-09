@@ -50,6 +50,12 @@ private static final String CHANNEL_ID_2 = "CHANNEL_SAMPLE2";
         Intent mainIntent = new Intent(context, MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, mainIntent, 0);
 
+        //usuniecie notyfikacji
+        Intent notificationIntent = new Intent(context, MainActivity.class);
+        notificationIntent.putExtra("deleteNotification", true);
+        PendingIntent pendingIntentDelete = PendingIntent.getActivity(context, 0, notificationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
 
         //sprawdzanie czy wartość  jest dodatnia i na tej podstawie wyświetlenie odpowiedniej notyfikacji
         if(batter_status>0) {
@@ -79,6 +85,7 @@ private static final String CHANNEL_ID_2 = "CHANNEL_SAMPLE2";
                         .setContentText("Battery achieved chosen value " + battery_level + "%")
                         .setContentIntent(contentIntent)
                         .setVibrate(new long[3000])
+                        .addAction(R.drawable.clear,"Remove",pendingIntentDelete)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setAutoCancel(true);
 
@@ -115,6 +122,7 @@ private static final String CHANNEL_ID_2 = "CHANNEL_SAMPLE2";
                         .setContentText("Battery achieved chosen value " + battery_level + "%")
                         .setContentIntent(contentIntent)
                         .setVibrate(new long[3000])
+                        .addAction(R.drawable.clear,"Remove",pendingIntentDelete)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setAutoCancel(true);
 

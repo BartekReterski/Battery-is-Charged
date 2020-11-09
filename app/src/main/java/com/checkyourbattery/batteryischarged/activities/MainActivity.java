@@ -67,6 +67,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //usuniecie notyfikacji z receivera
+        if (getIntent().hasExtra("deleteNotification")) {
+            DeleteNotification();
+        }
 
     }
 
@@ -134,14 +138,14 @@ public class MainActivity extends AppCompatActivity {
                     editorCheck.putBoolean("check_not_disch", false);
                     editorCheck.apply();
                     DeleteNotification();
-                    Toasty.info(MainActivity.this, "Notification removed", Toasty.LENGTH_LONG).show();
+
 
                 } else {
                     item.setChecked(true);
                     editorCheck.putBoolean("check_not_disch", true);
                     editorCheck.apply();
                     createNotificationChannel();
-                    Toasty.success(MainActivity.this, "Notification will be shown when battery achieved " + choosen_battery_value + " %", Toast.LENGTH_LONG).show();
+
 
                 }
 
@@ -241,13 +245,26 @@ public class MainActivity extends AppCompatActivity {
                                     if (item.description.equals("System notification")) {
 
 
-                                        //odebranie danych tymczasowych na temat wybranej wartosci alarmu
-                                        SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS_3", MODE_PRIVATE);
-                                        int choosen_alarm_value = sharedPreferences1.getInt("alarm_value", 0);
+                                        Intent intent = new Intent(MainActivity.this, ChargingReceiver.class);
+                                        intent.putExtra("choosen_battery_value", choosen_battery_value);
+                                        intent.putExtra("notificationId", notificationId);
+                                        intent.putExtra("notificationId2", notificationId2);
+                                        intent.putExtra("check_box_on_dis", check_box_value_not_disch);
+                                        intent.setAction("BackgroundProcess");
+
+                                        //sprawdzenie czy jest ustawiona już notyfikacja
+                                        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, PendingIntent.FLAG_NO_CREATE);
+
+                                        if (pendingIntent!=null){
+                                            Toast.makeText(MainActivity.this,"JEST alarm",Toast.LENGTH_LONG).show();
+                                            DeleteNotification();
+                                            createNotificationChannel();
+                                        }else{
+
+                                            createNotificationChannel();
+                                        }
 
 
-                                        createNotificationChannel();
-                                        Toasty.success(MainActivity.this, "Notification will be shown when battery achieved " + choosen_battery_value + " %" + " You can close the app", Toast.LENGTH_LONG).show();
                                         //wykonaj metode
                                     } else {
 
@@ -298,11 +315,7 @@ public class MainActivity extends AppCompatActivity {
 
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, 0, 10, pendingIntent);
 
-            //wyslanie danych tymczasowych na temat wartosci ustawionego alarmu
-            sharedPreferencesAlarmValue = getSharedPreferences("PREFS_3", MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putInt("alarm_value", choosen_battery_value);
-            editor.apply();
+            Toasty.success(MainActivity.this, "Notification will be shown when battery achieved " + choosen_battery_value + " %" + " You can close the app", Toast.LENGTH_LONG).show();
 
 
         } catch (Exception ex) {
@@ -315,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         try {
-            //alarm podczas ładowania
+
             Intent intent = new Intent(this, ChargingReceiver.class);
             intent.putExtra("choosen_battery_value", choosen_battery_value);
             intent.putExtra("notificationId", notificationId);
@@ -323,13 +336,13 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("check_box_on_dis", check_box_value_not_disch);
             intent.setAction("BackgroundProcess");
 
-            //Ustawienia alertu
+            //Usuniecie notyfikacji
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             assert alarmManager != null;
 
             alarmManager.cancel(pendingIntent);
-
+            Toasty.info(MainActivity.this, "Notification removed", Toasty.LENGTH_LONG).show();
 
         } catch (Exception ex) {
 
@@ -337,6 +350,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
 
 }
 
