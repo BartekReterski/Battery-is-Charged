@@ -9,12 +9,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.checkyourbattery.batteryischarged.BuildConfig;
@@ -38,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private SharedPreferences sharedPreferencesCheckboxNotDisch;
     private SharedPreferences sharedPreferencesNotificatioData;
+    private SharedPreferences sharedPreferencesNotificatioDataEmail;
     int choosen_battery_value;
     boolean check_box_value_not_disch;
     private Menu menuList;
@@ -309,12 +318,16 @@ public class MainActivity extends AppCompatActivity {
 
         //odebranie danych tymczasowych na temat wykonanej logiki notyfikacji
         SharedPreferences sharedPreferencesN = getSharedPreferences("PREFS_3", MODE_PRIVATE);
-        String index = sharedPreferencesN.getString("alarm_value", "");
+        String index_Alert = sharedPreferencesN.getString("alarm_value", "");
+
+        //odebranie danych tymczasowych na temat wykonanej logiki notyfikacji
+        SharedPreferences sharedPreferencesNN = getSharedPreferences("PREFS_4", MODE_PRIVATE);
+        String index_Email = sharedPreferencesNN.getString("alarm_value_email", "");
 
         List<OptionModel> result = new ArrayList<>();
         String[] raw = new String[2];
-        raw[0]="System notification/ "+index;
-        raw[1]="Send e-mail/1$";
+        raw[0]="System notification/ "+index_Alert;
+        raw[1]="Send e-mail/ "+index_Email;
         for (String op : raw) {
             String[] info = op.split("/");
             result.add(new OptionModel(info[0],info[1]));
@@ -395,27 +408,72 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void creatNotificationEmail(){
+
+        ViewGroup viewGroup = findViewById(android.R.id.content);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.email_config_layout, viewGroup, false);
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setView(dialogView);
+        AlertDialog alertDialog = builder.create();
+        Objects.requireNonNull(alertDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        alertDialog.show();
+
+        EditText editEmail=alertDialog.findViewById(R.id.edit_email);
+        EditText editPassword=alertDialog.findViewById(R.id.edit_password);
+        Button emailButton=alertDialog.findViewById(R.id.email_button);
+
+        ImageView infoEmail=alertDialog.findViewById(R.id.info_email);
+
+        infoEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ViewGroup viewGroup = findViewById(android.R.id.content);
+                View dialogView = LayoutInflater.from(MainActivity.this).inflate(R.layout.email_info_dialog, viewGroup, false);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setView(dialogView);
+                AlertDialog alertDialog = builder.create();
+                Objects.requireNonNull(alertDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                alertDialog.show();
+
+
+
+            }
+        });
+
+
+        String deviceModel = Build.MANUFACTURER
+                + " " + Build.MODEL;
+
         BackgroundMail.newBuilder(this)
                 .withUsername("spammejl94@gmail.com")
                 .withPassword("bobmarley20")
-                .withMailto("spammejl94@gmail.com")
+                .withSenderName("Battery is Charged")
+                .withMailTo("spammejl94@gmail.com")
                 .withType(BackgroundMail.TYPE_PLAIN)
-                .withSubject("SWIEZY MEJL")
-                .withBody("DUPA DUPA DUPA")
-                .withOnSuccessCallback(new BackgroundMail.OnSuccessCallback() {
+                .withSubject("Your device "+deviceModel + "achieved choosen battery percent")
+                .withBody("this is the body")
+                .withSendingMessage("Sending email")
+                .withOnSuccessCallback(new BackgroundMail.OnSendingCallback() {
                     @Override
                     public void onSuccess() {
-                        //do some magic
-                        Toasty.success(MainActivity.this, "E-mail will be sent when battery achieved " + choosen_battery_value + " %", Toast.LENGTH_LONG).show();
+
+                        Toasty.success(MainActivity.this,"E-mail will be sent when battery achieved " + choosen_battery_value + " %",Toasty.LENGTH_LONG).show();
                     }
-                })
-                .withOnFailCallback(new BackgroundMail.OnFailCallback() {
+
                     @Override
-                    public void onFail() {
-                        Toasty.info(MainActivity.this,"Can't send email",Toast.LENGTH_LONG).show();
+                    public void onFail(Exception e) {
+
+                        Toasty.error(MainActivity.this,"Email sent error"+e.getMessage(),Toasty.LENGTH_LONG).show();
                     }
                 })
                 .send();
+
+
+        //wyslanie danych tymczasowych na temat wykonanej logiki notyfikacji
+        sharedPreferencesNotificatioDataEmail = getSharedPreferences("PREFS_4", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferencesNotificatioDataEmail.edit();
+        editor.putString("alarm_value_email", "Notification: " +choosen_battery_value +"%");
+        editor.apply();
+
 
     }
 

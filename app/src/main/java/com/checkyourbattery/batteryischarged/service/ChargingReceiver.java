@@ -14,8 +14,6 @@ import androidx.core.app.NotificationCompat;
 import com.checkyourbattery.batteryischarged.R;
 import com.checkyourbattery.batteryischarged.activities.MainActivity;
 import java.util.Objects;
-
-import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.BATTERY_SERVICE;
 
 
