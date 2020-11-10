@@ -14,7 +14,8 @@
         <activity
             android:name=".activities.DeviceInfoActivity"
             android:parentActivityName=".activities.MainActivity" />
-        <activity android:name=".activities.MainActivity"/>
+        <activity android:name=".activities.MainActivity"
+            android:launchMode="singleTop"/>
         <activity
             android:name=".activities.SplashScreenActivity"
             android:screenOrientation="portrait"

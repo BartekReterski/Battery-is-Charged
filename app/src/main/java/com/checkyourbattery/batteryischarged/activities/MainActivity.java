@@ -63,18 +63,6 @@ public class MainActivity extends AppCompatActivity {
         NotificationLogic();
 
 
-        //przypisanie przejscia do aktywnosci dla tekstu
-        TextView getDeviceInfoText = findViewById(R.id.getDeviceInfoText);
-        getDeviceInfoText.getPaint().setUnderlineText(true);
-
-        getDeviceInfoText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, DeviceInfoActivity.class);
-                startActivity(intent);
-            }
-        });
-
         //usuniecie notyfikacji z receivera na samym powiadomieniu
         if (getIntent().hasExtra("deleteNotification")) {
             DeleteNotification();
@@ -175,6 +163,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void BattteryWidgetLogic() {
+
+        //przypisanie przejscia do aktywnosci dla tekstu
+        TextView getDeviceInfoText = findViewById(R.id.getDeviceInfoText);
+        getDeviceInfoText.getPaint().setUnderlineText(true);
+
+        getDeviceInfoText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, DeviceInfoActivity.class);
+                startActivity(intent);
+            }
+        });
 
         final TextView chargingText = findViewById(R.id.chargingText);
         final BoxedVertical batterySeek = findViewById(R.id.seekbar_battery);
@@ -389,6 +389,7 @@ public class MainActivity extends AppCompatActivity {
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             assert alarmManager != null;
+            pendingIntent.cancel();
 
             alarmManager.cancel(pendingIntent);
 
@@ -409,6 +410,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void creatNotificationEmail(){
 
+        //zadeklarowanie alert dialogu z konfiguracja danych emailowych do wysyłania wiadomości w tle
         ViewGroup viewGroup = findViewById(android.R.id.content);
         View dialogView = LayoutInflater.from(this).inflate(R.layout.email_config_layout, viewGroup, false);
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -421,8 +423,9 @@ public class MainActivity extends AppCompatActivity {
         EditText editPassword=alertDialog.findViewById(R.id.edit_password);
         Button emailButton=alertDialog.findViewById(R.id.email_button);
 
-        ImageView infoEmail=alertDialog.findViewById(R.id.info_email);
 
+        //zadeklarowanie alertu z dodatkowa informacją na temat konnfiguracji Gmaila przez użytkownika
+        ImageView infoEmail=alertDialog.findViewById(R.id.info_email);
         infoEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -430,9 +433,17 @@ public class MainActivity extends AppCompatActivity {
                 View dialogView = LayoutInflater.from(MainActivity.this).inflate(R.layout.email_info_dialog, viewGroup, false);
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setView(dialogView);
-                AlertDialog alertDialog = builder.create();
+                final AlertDialog alertDialog = builder.create();
                 Objects.requireNonNull(alertDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 alertDialog.show();
+
+                ImageView infoAlertClose= alertDialog.findViewById(R.id.info_alert_close);
+                infoAlertClose.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alertDialog.dismiss();
+                    }
+                });
 
 
 
@@ -443,7 +454,7 @@ public class MainActivity extends AppCompatActivity {
         String deviceModel = Build.MANUFACTURER
                 + " " + Build.MODEL;
 
-        BackgroundMail.newBuilder(this)
+      /*  BackgroundMail.newBuilder(this)
                 .withUsername("spammejl94@gmail.com")
                 .withPassword("bobmarley20")
                 .withSenderName("Battery is Charged")
@@ -462,11 +473,11 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onFail(Exception e) {
 
-                        Toasty.error(MainActivity.this,"Email sent error"+e.getMessage(),Toasty.LENGTH_LONG).show();
+                        Toasty.error(MainActivity.this,"E-mail sent error"+e.getMessage(),Toasty.LENGTH_LONG).show();
                     }
                 })
                 .send();
-
+*/
 
         //wyslanie danych tymczasowych na temat wykonanej logiki notyfikacji
         sharedPreferencesNotificatioDataEmail = getSharedPreferences("PREFS_4", MODE_PRIVATE);
