@@ -14,6 +14,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,6 +31,7 @@ import com.checkyourbattery.batteryischarged.R;
 import com.checkyourbattery.batteryischarged.adapter.ChooseOptionAdapter;
 import com.checkyourbattery.batteryischarged.models.OptionModel;
 import com.checkyourbattery.batteryischarged.service.ChargingReceiver;
+import com.checkyourbattery.batteryischarged.service.EmailReceiver;
 import com.creativityapps.gmailbackgroundlibrary.BackgroundMail;
 import com.github.florent37.viewtooltip.ViewTooltip;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
@@ -66,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         //usuniecie notyfikacji z receivera na samym powiadomieniu
         if (getIntent().hasExtra("deleteNotification")) {
             DeleteNotification();
+            Toast.makeText(MainActivity.this,"DZILA",Toast.LENGTH_LONG).show();
             NotificationManager notificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             Objects.requireNonNull(notificationManager).cancel(notificationId);
@@ -204,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
                 choosen_battery_value = sharedPreferences1.getInt("battery_value", 0);
 
-                chargingText.setText("Charge battery up to " + String.valueOf(choosen_battery_value) + "%");
+                chargingText.setText("Charge the battery up to " + String.valueOf(choosen_battery_value) + "%");
             }
 
             @Override
@@ -357,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
 
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, 0, 10, pendingIntent);
 
-            Toasty.success(MainActivity.this, "Notification will be shown when battery achieved " + choosen_battery_value + " %", Toast.LENGTH_LONG).show();
+            Toasty.success(MainActivity.this, "The notification will be shown when battery reaches " + choosen_battery_value + " %", Toast.LENGTH_LONG).show();
 
             //wyslanie danych tymczasowych na temat wykonanej logiki notyfikacji
             sharedPreferencesNotificatioData = getSharedPreferences("PREFS_3", MODE_PRIVATE);
@@ -410,82 +413,77 @@ public class MainActivity extends AppCompatActivity {
 
     private void creatNotificationEmail(){
 
-        //zadeklarowanie alert dialogu z konfiguracja danych emailowych do wysyłania wiadomości w tle
-        ViewGroup viewGroup = findViewById(android.R.id.content);
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.email_config_layout, viewGroup, false);
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setView(dialogView);
-        AlertDialog alertDialog = builder.create();
-        Objects.requireNonNull(alertDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        alertDialog.show();
+        try {
 
-        EditText editEmail=alertDialog.findViewById(R.id.edit_email);
-        EditText editPassword=alertDialog.findViewById(R.id.edit_password);
-        Button emailButton=alertDialog.findViewById(R.id.email_button);
+            //stworzenie booleana z informacja na true o tym, że dany email jest ustawiony. Dalej w LogicNotifcation()- if boolean jest true zmieniamy na false i false nie wlacza alarmu w receiverze
 
+            //zadeklarowanie alert dialogu z konfiguracja danych emailowych do wysyłania wiadomości w tle
+            ViewGroup viewGroup = findViewById(android.R.id.content);
+            View dialogView = LayoutInflater.from(this).inflate(R.layout.email_config_layout, viewGroup, false);
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setView(dialogView);
+            AlertDialog alertDialog = builder.create();
+            Objects.requireNonNull(alertDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            alertDialog.show();
 
-        //zadeklarowanie alertu z dodatkowa informacją na temat konnfiguracji Gmaila przez użytkownika
-        ImageView infoEmail=alertDialog.findViewById(R.id.info_email);
-        infoEmail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ViewGroup viewGroup = findViewById(android.R.id.content);
-                View dialogView = LayoutInflater.from(MainActivity.this).inflate(R.layout.email_info_dialog, viewGroup, false);
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setView(dialogView);
-                final AlertDialog alertDialog = builder.create();
-                Objects.requireNonNull(alertDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                alertDialog.show();
+            final EditText editEmail = alertDialog.findViewById(R.id.edit_email);
+            final EditText editPassword = alertDialog.findViewById(R.id.edit_password);
+            Button emailButton = alertDialog.findViewById(R.id.email_button);
 
-                ImageView infoAlertClose= alertDialog.findViewById(R.id.info_alert_close);
-                infoAlertClose.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        alertDialog.dismiss();
-                    }
-                });
+            emailButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
+                    String email = editEmail.getText().toString();
+                    String password = editPassword.getText().toString();
 
+                    //wysłanie danych z formularza do receivera e-mail
+                    Intent intentEmail = new Intent(MainActivity.this, EmailReceiver.class);
+                    intentEmail.putExtra("choosen_battery_valueEmail", choosen_battery_value);
+                    intentEmail.putExtra("email", email);
+                    intentEmail.putExtra("password", password);
+                    intentEmail.setAction("BackgroundProcessEmail");
+                    Toasty.success(MainActivity.this, "An e-mail will be sent when battery reaches " + choosen_battery_value + " %", Toasty.LENGTH_LONG).show();
 
-            }
-        });
+                }
+            });
 
 
-        String deviceModel = Build.MANUFACTURER
-                + " " + Build.MODEL;
+            //zadeklarowanie alertu z dodatkowa informacją na temat konnfiguracji Gmaila przez użytkownika
+            ImageView infoEmail = alertDialog.findViewById(R.id.info_email);
+            infoEmail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ViewGroup viewGroup = findViewById(android.R.id.content);
+                    View dialogView = LayoutInflater.from(MainActivity.this).inflate(R.layout.email_info_dialog, viewGroup, false);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setView(dialogView);
+                    final AlertDialog alertDialog = builder.create();
+                    Objects.requireNonNull(alertDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    alertDialog.show();
 
-      /*  BackgroundMail.newBuilder(this)
-                .withUsername("spammejl94@gmail.com")
-                .withPassword("bobmarley20")
-                .withSenderName("Battery is Charged")
-                .withMailTo("spammejl94@gmail.com")
-                .withType(BackgroundMail.TYPE_PLAIN)
-                .withSubject("Your device "+deviceModel + "achieved choosen battery percent")
-                .withBody("this is the body")
-                .withSendingMessage("Sending email")
-                .withOnSuccessCallback(new BackgroundMail.OnSendingCallback() {
-                    @Override
-                    public void onSuccess() {
+                    ImageView infoAlertClose = alertDialog.findViewById(R.id.info_alert_close);
+                    infoAlertClose.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            alertDialog.dismiss();
+                        }
+                    });
 
-                        Toasty.success(MainActivity.this,"E-mail will be sent when battery achieved " + choosen_battery_value + " %",Toasty.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void onFail(Exception e) {
-
-                        Toasty.error(MainActivity.this,"E-mail sent error"+e.getMessage(),Toasty.LENGTH_LONG).show();
-                    }
-                })
-                .send();
-*/
-
-        //wyslanie danych tymczasowych na temat wykonanej logiki notyfikacji
-        sharedPreferencesNotificatioDataEmail = getSharedPreferences("PREFS_4", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferencesNotificatioDataEmail.edit();
-        editor.putString("alarm_value_email", "Notification: " +choosen_battery_value +"%");
-        editor.apply();
+                }
+            });
 
 
+            //wyslanie danych tymczasowych na temat wykonanej logiki notyfikacji
+            sharedPreferencesNotificatioDataEmail = getSharedPreferences("PREFS_4", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferencesNotificatioDataEmail.edit();
+            editor.putString("alarm_value_email", "Notification: " + choosen_battery_value + "%");
+            editor.apply();
+
+        }catch (Exception ex){
+
+            System.out.println(ex.getMessage());
+        }
     }
 
 }

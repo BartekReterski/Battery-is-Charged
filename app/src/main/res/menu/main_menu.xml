@@ -26,7 +26,7 @@
         app:showAsAction="never">
         <menu>
             <item android:id="@+id/itemNotDischOff"
-                android:title="Notifications when discharging"
+                android:title="System notifications when discharging"
                 android:checkable="true"
 
                 />

@@ -14,6 +14,8 @@ import androidx.core.app.NotificationCompat;
 import com.checkyourbattery.batteryischarged.R;
 import com.checkyourbattery.batteryischarged.activities.MainActivity;
 import java.util.Objects;
+import java.util.Random;
+
 import static android.content.Context.BATTERY_SERVICE;
 
 
@@ -45,13 +47,13 @@ private static final String CHANNEL_ID_2 = "CHANNEL_SAMPLE2";
 
         // uruchomienie activity z powiadomienia
         Intent mainIntent = new Intent(context, MainActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 0, mainIntent, 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(context, new Random().nextInt(150) * 37, mainIntent, 0);
 
         //usuniecie notyfikacji
         Intent notificationIntent = new Intent(context, MainActivity.class);
         notificationIntent.putExtra("deleteNotification", true);
-        PendingIntent pendingIntentDelete = PendingIntent.getActivity(context, 0, notificationIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntentDelete = PendingIntent.getActivity(context, new Random().nextInt(150) * 37, notificationIntent,
+                PendingIntent.FLAG_ONE_SHOT);
 
 
         //sprawdzanie czy wartość  jest dodatnia i na tej podstawie wyświetlenie odpowiedniej notyfikacji
@@ -79,11 +81,11 @@ private static final String CHANNEL_ID_2 = "CHANNEL_SAMPLE2";
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                         .setSmallIcon(R.drawable.notification_mini_icon)
                         .setContentTitle("Battery info update")
-                        .setContentText("Battery achieved chosen value " + battery_level + "%")
+                        .setContentText("The battery has achieved the chosen value of " + battery_level + "%")
                         .setContentIntent(contentIntent)
                         .setVibrate(new long[3000])
                         .addAction(R.drawable.clear,"Remove",pendingIntentDelete)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setAutoCancel(true);
 
 
@@ -116,11 +118,11 @@ private static final String CHANNEL_ID_2 = "CHANNEL_SAMPLE2";
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID_2)
                         .setSmallIcon(R.drawable.notification_mini_icon)
                         .setContentTitle("Battery info update")
-                        .setContentText("Battery achieved chosen value " + battery_level + "%")
+                        .setContentText("The battery has achieved the chosen value of " + battery_level + "%")
                         .setContentIntent(contentIntent)
                         .setVibrate(new long[3000])
                         .addAction(R.drawable.clear,"Remove",pendingIntentDelete)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setAutoCancel(true);
 
 

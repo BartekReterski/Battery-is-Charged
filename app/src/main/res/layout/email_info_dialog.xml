@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/edit_email"
-        android:text="According to Gmail private politics, you should change gmail accounts security for sending emails in background.For proper works of sending emails in the background, switch on to Less secure app access"
+        android:text="According to Gmail private politics, you should change gmail accounts security for sending emails in background.For proper works of sending emails in the background, switch on to:\n 'Less secure app access'"
         android:layout_marginTop="@dimen/_30sdp"
         android:layout_marginBottom="@dimen/_20sdp"
         android:layout_marginEnd="@dimen/_20sdp"

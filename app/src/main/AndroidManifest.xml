@@ -38,6 +38,18 @@
                 <action android:name="BackgroundProcess" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".service.EmailReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+                <action android:name="android.intent.action.BATTERY_CHANGED" />
+                <action android:name="BackgroundProcessEmail" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
