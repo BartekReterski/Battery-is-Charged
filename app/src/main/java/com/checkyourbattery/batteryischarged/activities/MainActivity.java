@@ -1,6 +1,8 @@
 package com.checkyourbattery.batteryischarged.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
@@ -9,12 +11,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,15 +31,12 @@ import com.checkyourbattery.batteryischarged.R;
 import com.checkyourbattery.batteryischarged.adapter.ChooseOptionAdapter;
 import com.checkyourbattery.batteryischarged.models.OptionModel;
 import com.checkyourbattery.batteryischarged.service.ChargingReceiver;
-import com.checkyourbattery.batteryischarged.service.EmailReceiver;
-import com.creativityapps.gmailbackgroundlibrary.BackgroundMail;
 import com.github.florent37.viewtooltip.ViewTooltip;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 import com.yarolegovich.lovelydialog.LovelyInfoDialog;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import abak.tr.com.boxedverticalseekbar.BoxedVertical;
 import es.dmoral.toasty.Toasty;
 
@@ -47,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences sharedPreferencesCheckboxNotDisch;
-    private SharedPreferences sharedPreferencesNotificatioData;
+    private SharedPreferences sharedPreferencesNotificatioDataSystemAlert;
     private SharedPreferences sharedPreferencesNotificatioDataEmail;
     int choosen_battery_value;
     boolean check_box_value_not_disch;
@@ -64,11 +61,9 @@ public class MainActivity extends AppCompatActivity {
         BattteryWidgetLogic();
         NotificationLogic();
 
-
         //usuniecie notyfikacji z receivera na samym powiadomieniu
         if (getIntent().hasExtra("deleteNotification")) {
             DeleteNotification();
-            Toast.makeText(MainActivity.this,"DZILA",Toast.LENGTH_LONG).show();
             NotificationManager notificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             Objects.requireNonNull(notificationManager).cancel(notificationId);
@@ -87,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences2 = getSharedPreferences("PREFS_2", MODE_PRIVATE);
         check_box_value_not_disch = sharedPreferences2.getBoolean("check_not_disch", false);
 
-        //Toast.makeText(this,String.valueOf(check_box_value_not_disch),Toast.LENGTH_LONG).show();
         menu.findItem(R.id.itemNotDischOff).setChecked(check_box_value_not_disch);
 
 
@@ -155,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 return true;
+
 
 
             default:
@@ -254,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
                             .setTopColorRes(R.color.chooseOption)
                             .setTitle("Choose notification option")
                             .setIcon(R.drawable.notification_on)
-                            .setMessage("Choose your preferable notification option and get info when battery is charged, based on your previous chosen value")
+                            .setMessage("Choose the notification option and get info when battery is charged, based on your previous chosen value")
                             .setItems(adapter, new LovelyChoiceDialog.OnItemSelectedListener<OptionModel>() {
                                 @Override
                                 public void onItemSelected(int position, OptionModel item) {
@@ -304,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
 
                                     } else {
 
-                                        creatNotificationEmail();
+                                        //creatNotificationEmail();
 
                                     }
                                 }
@@ -328,9 +323,9 @@ public class MainActivity extends AppCompatActivity {
         String index_Email = sharedPreferencesNN.getString("alarm_value_email", "");
 
         List<OptionModel> result = new ArrayList<>();
-        String[] raw = new String[2];
+        String[] raw = new String[1];
         raw[0]="System notification/ "+index_Alert;
-        raw[1]="Send e-mail/ "+index_Email;
+        //raw[1]="Send e-mail/ "+index_Email;
         for (String op : raw) {
             String[] info = op.split("/");
             result.add(new OptionModel(info[0],info[1]));
@@ -353,6 +348,8 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("check_box_on_dis", check_box_value_not_disch);
             intent.setAction("BackgroundProcess");
 
+
+
             //Ustawienia alertu
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -363,8 +360,8 @@ public class MainActivity extends AppCompatActivity {
             Toasty.success(MainActivity.this, "The notification will be shown when battery reaches " + choosen_battery_value + " %", Toast.LENGTH_LONG).show();
 
             //wyslanie danych tymczasowych na temat wykonanej logiki notyfikacji
-            sharedPreferencesNotificatioData = getSharedPreferences("PREFS_3", MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferencesNotificatioData.edit();
+            sharedPreferencesNotificatioDataSystemAlert = getSharedPreferences("PREFS_3", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferencesNotificatioDataSystemAlert.edit();
             editor.putString("alarm_value", "Notification: " +choosen_battery_value +"%");
             editor.apply();
 
@@ -397,8 +394,8 @@ public class MainActivity extends AppCompatActivity {
             alarmManager.cancel(pendingIntent);
 
             //usuniecie danych tymczasowych na temat wykonanej logiki notyfikacji
-            sharedPreferencesNotificatioData = getSharedPreferences("PREFS_3", MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferencesNotificatioData.edit();
+            sharedPreferencesNotificatioDataSystemAlert = getSharedPreferences("PREFS_3", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferencesNotificatioDataSystemAlert.edit();
             editor.remove("alarm_value");
             editor.apply();
 
@@ -411,6 +408,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //wysyłanie emejli onlinne w tle
     private void creatNotificationEmail(){
 
         try {
@@ -422,7 +420,7 @@ public class MainActivity extends AppCompatActivity {
             View dialogView = LayoutInflater.from(this).inflate(R.layout.email_config_layout, viewGroup, false);
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setView(dialogView);
-            AlertDialog alertDialog = builder.create();
+            final AlertDialog alertDialog = builder.create();
             Objects.requireNonNull(alertDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             alertDialog.show();
 
@@ -437,13 +435,22 @@ public class MainActivity extends AppCompatActivity {
                     String email = editEmail.getText().toString();
                     String password = editPassword.getText().toString();
 
-                    //wysłanie danych z formularza do receivera e-mail
-                    Intent intentEmail = new Intent(MainActivity.this, EmailReceiver.class);
+                /*    //wysłanie danych z formularza do receivera e-mail
+                   *//* Intent intentEmail = new Intent(MainActivity.this, EmailReceiver.class);
                     intentEmail.putExtra("choosen_battery_valueEmail", choosen_battery_value);
                     intentEmail.putExtra("email", email);
                     intentEmail.putExtra("password", password);
-                    intentEmail.setAction("BackgroundProcessEmail");
+                    intentEmail.setAction("BackgroundProcessEmail");*//*
+
+                    //zadeklarowanie alarm managera, który uruchomi wysłanie mejla i przesłanie żądania do receivera
+                   *//* PendingIntent pendingIntent=  PendingIntent.getBroadcast(MainActivity.this,0,intentEmail,0);
+                    AlarmManager alarmManager= (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+                    assert alarmManager != null;
+                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,0,10,pendingIntent);*//*
+*/
                     Toasty.success(MainActivity.this, "An e-mail will be sent when battery reaches " + choosen_battery_value + " %", Toasty.LENGTH_LONG).show();
+
+                    alertDialog.dismiss();
 
                 }
             });
@@ -485,6 +492,7 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(ex.getMessage());
         }
     }
+
 
 }
 

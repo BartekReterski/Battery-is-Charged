@@ -26,17 +26,11 @@
         app:showAsAction="never">
         <menu>
             <item android:id="@+id/itemNotDischOff"
-                android:title="System notifications when discharging"
+                android:title="Notifications when discharging"
                 android:checkable="true"
 
                 />
 
-            <item android:id="@+id/itemNotPluged"
-                android:title="Notification when charger plugged"
-                android:visible="false"
-                android:checkable="true"
-
-                />
         </menu>
     </item>
 
