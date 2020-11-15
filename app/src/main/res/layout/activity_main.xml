@@ -15,8 +15,8 @@
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/_20sdp"
-        android:padding="@dimen/_8sdp"
         android:layout_weight="1"
+        android:padding="@dimen/_8sdp"
         app:backgroundColor="@color/color_background"
         app:defaultImage="@drawable/battery_white"
         app:defaultValue="20"
@@ -37,12 +37,12 @@
         app:touchDisabled="true" />
 
     <TextView
+        android:id="@+id/chargingText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/chargingText"
+        android:layout_marginTop="@dimen/_15sdp"
         android:text="Set charged value"
         android:textSize="@dimen/_16sdp"
-        android:layout_marginTop="@dimen/_15sdp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -61,21 +61,30 @@
         android:textColor="#f5f5f5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chargingText"/>
+        app:layout_constraintTop_toBottomOf="@+id/chargingText" />
 
     <TextView
+        android:id="@+id/getDeviceInfoText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/getDeviceInfoText"
         android:layout_marginTop="@dimen/_25sdp"
-        android:textStyle="bold"
-        android:textSize="@dimen/_13sdp"
         android:text="Get info about device and battery"
+        android:textSize="@dimen/_13sdp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonNotification">
-    </TextView>
+        app:layout_constraintTop_toBottomOf="@+id/buttonNotification" />
 
+    <LinearLayout
+        android:id="@+id/banner_ads_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/_20sdp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

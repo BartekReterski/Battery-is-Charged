@@ -641,10 +641,17 @@
                 </LinearLayout>
 
 
-
             </LinearLayout>
         </ScrollView>
 
     </androidx.cardview.widget.CardView>
 
+    <FrameLayout
+        android:id="@+id/banner_ads_view_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="@dimen/_40sdp"
+        android:gravity="center"
+        android:orientation="horizontal" />
 </LinearLayout>

@@ -1,8 +1,10 @@
 package com.checkyourbattery.batteryischarged.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
@@ -15,6 +17,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +27,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.checkyourbattery.batteryischarged.BuildConfig;
@@ -32,10 +36,16 @@ import com.checkyourbattery.batteryischarged.adapter.ChooseOptionAdapter;
 import com.checkyourbattery.batteryischarged.models.OptionModel;
 import com.checkyourbattery.batteryischarged.service.ChargingReceiver;
 import com.github.florent37.viewtooltip.ViewTooltip;
+import com.unity3d.ads.IUnityAdsListener;
+import com.unity3d.ads.UnityAds;
+import com.unity3d.services.banners.IUnityBannerListener;
+import com.unity3d.services.banners.UnityBanners;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 import com.yarolegovich.lovelydialog.LovelyInfoDialog;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import abak.tr.com.boxedverticalseekbar.BoxedVertical;
 import es.dmoral.toasty.Toasty;
@@ -52,6 +62,10 @@ public class MainActivity extends AppCompatActivity {
     private int notificationId = 1;
     private int notificationId2 = 1;
 
+    //unity data
+    private String unityGameId="3902031";
+    private String bannerId="banner_ad";
+    private Boolean testMode=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +85,47 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+        //zainicjowanie reklam Unity Ads( dodanie testowego modułu reklam aplikacji)
+        UnityAds.initialize(MainActivity.this,unityGameId,testMode);
+        UnityBanners.loadBanner(MainActivity.this,bannerId);
+
+        IUnityBannerListener iUnityBannerListener= new IUnityBannerListener() {
+            @Override
+            public void onUnityBannerLoaded(String s, View view) {
+
+                ((ViewGroup)findViewById(R.id.banner_ads_view)).removeView(view);
+                ((ViewGroup)findViewById(R.id.banner_ads_view)).addView(view);
+            }
+
+            @Override
+            public void onUnityBannerUnloaded(String s) {
+
+            }
+
+            @Override
+            public void onUnityBannerShow(String s) {
+
+            }
+
+            @Override
+            public void onUnityBannerClick(String s) {
+
+            }
+
+            @Override
+            public void onUnityBannerHide(String s) {
+
+            }
+
+            @Override
+            public void onUnityBannerError(String s) {
+                UnityBanners.loadBanner(MainActivity.this,bannerId);
+            }
+        };
+        UnityBanners.setBannerListener(iUnityBannerListener);
+
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -235,6 +289,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+
                 //odebranie danych tymczasowych na temat wybranej wartosci baterii i przypisanie wartości do widgetu baterii
                 SharedPreferences sharedPreferences1 = getSharedPreferences("PREFS", MODE_PRIVATE);
                 choosen_battery_value = sharedPreferences1.getInt("battery_value", 0);
@@ -255,7 +310,6 @@ public class MainActivity extends AppCompatActivity {
                                 public void onItemSelected(int position, OptionModel item) {
                                     // Toast.makeText(MainActivity.this, item.amount),Toast.LENGTH_SHORT).show();
                                     if (item.description.equals("System notification")) {
-
                                         Intent intent = new Intent(MainActivity.this, ChargingReceiver.class);
                                         intent.putExtra("choosen_battery_value", choosen_battery_value);
                                         intent.putExtra("notificationId", notificationId);
@@ -492,7 +546,6 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(ex.getMessage());
         }
     }
-
 
 }
 

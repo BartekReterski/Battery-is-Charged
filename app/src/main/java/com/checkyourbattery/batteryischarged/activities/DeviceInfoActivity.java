@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +20,9 @@ import com.checkyourbattery.batteryischarged.R;
 import com.github.abara.library.batterystats.BatteryStats;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
+import com.unity3d.ads.UnityAds;
+import com.unity3d.services.banners.IUnityBannerListener;
+import com.unity3d.services.banners.UnityBanners;
 import com.yarolegovich.lovelydialog.LovelyInfoDialog;
 
 import java.text.DecimalFormat;
@@ -31,6 +35,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     private static DecimalFormat df = new DecimalFormat("#.##");
     private boolean change;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +44,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         RuntimePermissions();
         BatteryInfo();
+
 
     }
 
