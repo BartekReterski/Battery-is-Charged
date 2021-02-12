@@ -1,0 +1,2 @@
+Get informed when your device's battery is charged. Set your preferable charging value and receive information when finished. Never be worried again about low battery status when you are on the run. More over, get extra details related to your battery, like its health, temperature, technology and more. Thanks to its simple and minimalistic interface, this application is a perfect choice for anyone who would like to keep track on the battery charge level.
+https://play.google.com/store/apps/details?id=com.checkyourbattery.batteryischarged
